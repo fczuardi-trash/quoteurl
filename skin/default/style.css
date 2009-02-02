@@ -1,16 +1,36 @@
-
 .step{
     float:left;
     padding:1%;
+    margin:.5%;
+    background-color: #eee;
 }
+/*------ STEP 1 -------*/
 .step.s1{
-    width:30%;
+    width:27%;
 }
+/*------ STEP 2 -------*/
 .step.s2{
-    width:50%;
+    width:47%;
 }
+#quote{
+    padding-left:0px;
+}
+.hentry{
+    clear:both;
+    list-style:none;
+    padding-top:.7em;
+    border-top:1px dashed #ccc;
+}
+.vcard{
+    float:left;
+    margin-right:1em;
+}
+a.author{
+    font-weight:bold;
+}
+/*------ STEP 3 -------*/
 .step.s3{
-    width:12%;
+    width:16%;
 }
 .huge-button{
     width:100%;
