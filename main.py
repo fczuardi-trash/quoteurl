@@ -38,6 +38,7 @@ import urllib
 from google.appengine.api import users
 from google.appengine.ext import db
 from google.appengine.api import urlfetch
+from google.appengine.api import memcache
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 
@@ -53,11 +54,46 @@ class Dialogue(db.Model):
   created_date      = db.DateTimeProperty(auto_now_add=True)
   content_json      = db.TextProperty()
 
+class AccessHelper():
+  def isProUser(User):
+    return False
+
 class MainPage(webapp.RequestHandler):
   def get(self):
-    template_values = {}
+    user = users.get_current_user()
+    if not user:
+      msg_help1 = 'Anonymous users can add up to <em class="tweet-limit">4</em> Tweets per quote, <a href="/a/login">Sign-in</a> if you need more'
+    else:
+    # AccessHelper().isProUser(user):
+      msg_help1 = 'You can add up to <em class="tweet-limit">10</em> Tweets per quote. If you need more visit the <a href="/a/upgrade">upgrade membership</a> page.'
+    # else:
+    #   msg_help1 = 'Select the tweets that are worth sharing :)'
+    
+    template_values = {
+      'msg_help1' : msg_help1
+    }
     path = os.path.join(os.path.dirname(__file__), 'templates/index.html')
     self.response.out.write(template.render(path, template_values))
+
+class LoadTweet(webapp.RequestHandler):
+  def get(self):
+    tweet_id    = cgi.escape(self.request.get('id'))
+    fmt         = cgi.escape(self.request.get('fmt'))
+    url         = 'http://twitter.com/statuses/show/'+ tweet_id +'.json'
+    key         = 'tweet_'+ tweet_id +'.json'
+    tweet_json  = memcache.get(key)
+    if tweet_json is not None:
+      self.response.out.write(tweet_json)
+      return True
+    else:
+      result = urlfetch.fetch(url)
+      if result.status_code == 200:
+        self.response.out.write(result.content)
+        memcache.add(key, result.content, 60)
+        return True
+      else:
+        self.error(result.status_code)
+        return False
 
 class CreateQuote(webapp.RequestHandler):
   def post(self):
@@ -89,11 +125,21 @@ class SignIn(webapp.RequestHandler):
   def get(self):
     user = users.get_current_user()
     self.redirect(users.create_login_url('/'))
+    
+class UpgradeMembership(webapp.RequestHandler):
+  def get(self):
+    template_values = {}
+    path = os.path.join(os.path.dirname(__file__), 'templates/upgrade.html')
+    self.response.out.write(template.render(path, template_values))
+    
 
 def main():
   application = webapp.WSGIApplication(
   [
     ('/', MainPage),
+    ('/a/login', SignIn),
+    ('/a/upgrade', UpgradeMembership),
+    ('/a/loadtweet', LoadTweet),
     ('/a/create', CreateQuote)
   ], debug=True)
   wsgiref.handlers.CGIHandler().run(application)

@@ -1,17 +1,45 @@
 <html>
+    <head>
+        <script src="/js/mootools-1.2.1-core.js" type="text/javascript"></script>
+        <script src="/js/newquote.js" type="text/javascript"></script>
+        <link href="/skin/default/style.css" type="text/css" media="screen,projection" rel="stylesheet" /> 
+        <title>QuoteURL - Share Twitter Dialogues</title>
+    </head>
     <body>
-        <form action="a/create" method="post" onsubmit="return createQuote();">
-            <input type="hidden" name="statuses" />
-        </form>
-        <!-- <form action="/a/create" method="post">
-        <label>Tweets<input type="text" name="statues" /></label>
-        <p class="field-help">Enter a list of the status IDs you want to quote.</p>
-        <ul class="field-examples" id="examples" style="display:none;" >
-        <li>1145408853, 1145501753</li>
-        <li>1140235467-1140275762</li>
-        <li>1140729344-1140809532 marcogomes,fczuardi</li>
-        </ul>
-        <div><input type="submit" value="Quote!"></div>
-        </form> -->
+        <h1>QuoteURL (alpha)</h1>
+        <h2>Share Twitter Dialogues</h2>
+        <p id="service-description" class="todo">
+            Short description of the service goes here.
+        </p>
+        <div class="content">
+            <div class="step s1">
+                <h3>Step 1 - Build your quote.</h3>
+                <p>{{msg_help1}}</p>
+                <label>Enter an individual Status ID or URL: <input type="text" id="status-id-field" /></label>
+                <input type="button" value="+" id="add-tweet-button" onclick="return addTweet();" />
+            </div>
+            <div class="step s2">
+                <h3>Step 2 - Preview and tweak</h3>
+                <p></p>
+                <ol id="quote">
+                </ol>
+            </div>
+            <div class="step s3">
+                <h3>Step 3</h3>
+                <form action="a/create" method="post" onsubmit="return createQuote();">
+                    <input type="submit" class="huge-button" value="Generate Quote URL!" />
+                </form>
+                <!-- <form action="/a/create" method="post">
+                <label>Tweets<input type="text" name="statues" /></label>
+                <p class="field-help">Enter a list of the status IDs you want to quote.</p>
+                <ul class="field-examples" id="examples" style="display:none;" >
+                <li>1145408853, 1145501753</li>
+                <li>1140235467-1140275762</li>
+                <li>1140729344-1140809532 marcogomes,fczuardi</li>
+                </ul>
+                <div><input type="submit" value="Quote!"></div>
+                </form> -->
+            </div>
+        </div>
     </body>
 </html>
