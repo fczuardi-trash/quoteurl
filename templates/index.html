@@ -1,7 +1,7 @@
 <html>
     <head>
         <script src="/js/mootools-1.2.1-core.js" type="text/javascript"></script>
-        <script src="/js/newquote.js" type="text/javascript"></script>
+        <script src="/js/main.js" type="text/javascript"></script>
         <link href="/skin/default/style.css" type="text/css" media="screen,projection" rel="stylesheet" /> 
         <title>QuoteURL - Share Twitter Dialogues</title>
     </head>
@@ -15,9 +15,9 @@
             <div class="step s1">
                 <h3>Step 1 - Build your quote.</h3>
                 <p>{{msg_help1}}</p>
-                <form action="/" onsubmit="return addTweet();">
+                <form action="/" onsubmit="return loadTweet();">
                     <label>Enter an individual Status ID or URL: <input type="text" id="status-id-field" /></label>
-                    <input type="submit" name="tweet" value="+" id="add-tweet-button" onclick="return addTweet();" />
+                    <input type="submit" name="tweet" value="+" id="add-tweet-button" onclick="return loadTweet();" />
                 </form>
             </div>
             <div class="step s2">
