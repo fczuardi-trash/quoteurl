@@ -46,6 +46,7 @@ from google.appengine.ext.webapp import template
 
 MAX_QUOTE_SIZE_SIGNED_OUT = 4
 MAX_QUOTE_SIZE_SIGNED_IN  = 10
+LOADED_TWEET_CACHE_TIME   = 30*60 # half hour
 
 class Dialogue(db.Model):
   title             = db.StringProperty()
@@ -91,7 +92,7 @@ class LoadTweet(webapp.RequestHandler):
       result = urlfetch.fetch(url)
       if result.status_code == 200:
         self.response.out.write(result.content)
-        memcache.add(key, result.content, 60)
+        memcache.add(key, result.content, LOADED_TWEET_CACHE_TIME)
         return True
       else:
         self.error(result.status_code)
