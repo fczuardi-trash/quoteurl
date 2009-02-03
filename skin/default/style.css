@@ -1,8 +1,16 @@
+body{
+    font-family: 'Lucida Grande',sans-serif;
+    background-color: #ccc;
+}
+.content{
+    height:70%;
+}
 .step{
     float:left;
     padding:1%;
     margin:.5%;
     background-color: #eee;
+    min-height:90%;
 }
 /*------ STEP 1 -------*/
 .step.s1{
@@ -21,21 +29,80 @@
     padding-top:.7em;
     border-top:1px dashed #ccc;
 }
-.vcard{
+.thumb.vcard{
     float:left;
     margin-right:1em;
+    margin-left:.5em;
+}
+.thumb img{
+    border:none;
 }
 a.author{
     font-weight:bold;
 }
+.entry-meta{
+    color:#888;
+    font-family:georgia;
+    font-size:0.8em;
+    font-style:italic;
+}
+.entry-meta a{
+    color:#888;
+    text-decoration:none;
+}
+.entry-meta a:hover{
+    color:none;
+    text-decoration:underline;
+}
+.status-body{
+    margin-right:30px;
+    padding-right:1em;
+}
+.hentry .actions{
+    position:relative;
+    top:-2em;
+    left:100%;
+    margin-left:-30px;
+    width:30px;
+}
+.del{
+    color:#fff;
+    background-color:#999;
+    display:block;
+    width:20px;
+    text-align:center;
+    padding-bottom:3px;
+    font-size:13px;
+    outline:1px outset;
+    text-decoration:none;
+}
+li:hover{
+    background-color:#fff;
+}
+li:hover .del{
+    background-color:#c33;
+}
+.del:hover{
+    background-color:#f33;
+}
+.del:active{
+    outline:1px inset;
+    font-size:12px;
+}
+
 /*------ STEP 3 -------*/
 .step.s3{
     width:16%;
 }
 .huge-button{
     width:100%;
-    height:7em;
-    font-size:2em;
     white-space:normal;
     cursor:pointer;
+}
+
+/*------ FOOTER -------*/
+
+.footer{
+    clear:both;
+    background-color:#999;
 }

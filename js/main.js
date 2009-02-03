@@ -48,19 +48,28 @@ function loadTweet(){
     var statusId = $('status-id-field').get('value').replace(/(http:\/\/twitter.com\/.*\/status\/)?([^\/|\?|#]*).*/ig,'$2')
     //request tweet
     var url = '/a/loadtweet'
-    var jsonRequest = new Request.JSON({'url': url, onComplete: onTweetLoaded}).get({'id': statusId, 'fmt': 'json'});
+    var jsonRequest = new Request.JSON({'url': url, onComplete: requestComplete, onSuccess: onTweetLoaded, onFailure: onTweetLoadFailure}).get({'id': statusId, 'fmt': 'json'});
     return false
 }
 
-/** Callback function to run after the tweet content is returned **/
-function onTweetLoaded(response){
-    //debug
-    console.log(response)
-    //@TODO treat potential errors
+/** Callback function when the request completes, regardless of if it succeded or failed **/
+function requestComplete(r){
     //re-enable add button and clean the text input
     $('add-tweet-button').set('value','+')
     $('add-tweet-button').erase('disabled')
     $('status-id-field').set('value','')
+}
+
+/** Callback function to run if there was an error **/
+function onTweetLoadFailure(r){
+    console.log('FAIL')
+    console.log(r)
+    
+}
+
+/** Callback function to run if the tweet content is returned **/
+function onTweetLoaded(response){
+    console.log(response)
     //add the loaded tweet to the quote
     tweetlist[response.id] = response;
     addTweetToPreview(response)
@@ -91,6 +100,9 @@ function addTweetToPreview(tweet){
     html += '            <span title="'+isotime+'" class="published">'+humantime+'</span></a> <span>from '+tweet.source+'</span>'
     html += '        </span>'
     html += '    </div>'
+    html += '    <div class="actions">'
+    html += '        <a class="del" href="#" id="del_'+tweet.id+'" onclick="return removeTweet(this);">x</a>'
+    html += '    </div>'
     newTweet.innerHTML = html
     //existing tweets in the quote preview
     var quote_tweets = $$('li')
@@ -119,6 +131,17 @@ function tweetComesBefore(a,b){
     } else {
         return (a.get('_time') > b.get('_time'))
     }
+}
+
+/** Remove the Tweet from the preview panel and from the list **/
+function removeTweet(del_button){
+    var tweet_id = del_button.id.substring('del_'.length, del_button.id.length)
+    console.log(tweet_id)
+    console.log(tweetlist)
+    delete tweetlist[tweet_id]
+    console.log(tweetlist)
+    $('status_'+tweet_id).dispose()
+    return false
 }
 
 /** Validate and sends necessary data to create the new quote page **/
