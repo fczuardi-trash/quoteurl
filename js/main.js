@@ -136,7 +136,7 @@ function addTweetToPreview(tweet){
     html += '    <div class="actions">'
     html += '        <a class="del" href="#" id="del_'+tweet.id+'" onclick="return removeTweet(this);">x</a>'
     html += '    </div>'
-    newTweet.innerHTML = html
+    newTweet.set('html', html)
     //existing tweets in the quote preview
     var quote_tweets = $$('li')
     if(quote_tweets.length == 0){
