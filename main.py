@@ -46,7 +46,7 @@ from google.appengine.ext.webapp import template
 
 MAX_QUOTE_SIZE_SIGNED_OUT = 4
 MAX_QUOTE_SIZE_SIGNED_IN  = 10
-LOADED_TWEET_CACHE_TIME   = 30*60 # half hour
+LOADED_TWEET_CACHE_TIME   = 60*60 # one hour
 
 class Dialogue(db.Model):
   title             = db.StringProperty()
