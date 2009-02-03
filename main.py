@@ -1,3 +1,4 @@
+#
 # QuoteURL - URL for Twitter Dialogues
 #
 # Copyright (c) 2009, Fabricio Zuardi
@@ -29,6 +30,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 __author__ = ('Fabricio Zuardi', 'fabricio@fabricio.org', 'http://fabricio.org')
+__license__ = "BSD"
 
 import os
 import cgi
@@ -41,6 +43,9 @@ from google.appengine.api import urlfetch
 from google.appengine.api import memcache
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
+
+MAX_QUOTE_SIZE_SIGNED_OUT = 4
+MAX_QUOTE_SIZE_SIGNED_IN  = 10
 
 class Dialogue(db.Model):
   title             = db.StringProperty()
@@ -62,12 +67,9 @@ class MainPage(webapp.RequestHandler):
   def get(self):
     user = users.get_current_user()
     if not user:
-      msg_help1 = 'Anonymous users can add up to <em class="tweet-limit">4</em> Tweets per quote, <a href="/a/login">Sign-in</a> if you need more'
+      msg_help1 = 'Anonymous users can add up to <em id="quote-size-limit">'+str(MAX_QUOTE_SIZE_SIGNED_OUT)+'</em> Tweets per quote, <a href="/a/login">Sign-in</a> if you need more'
     else:
-    # AccessHelper().isProUser(user):
-      msg_help1 = 'You can add up to <em class="tweet-limit">10</em> Tweets per quote. If you need more visit the <a href="/a/upgrade">upgrade membership</a> page.'
-    # else:
-    #   msg_help1 = 'Select the tweets that are worth sharing :)'
+      msg_help1 = 'You can add up to <em id="quote-size-limit">'+str(MAX_QUOTE_SIZE_SIGNED_IN)+'</em> Tweets per quote. If you need more visit the <a href="/a/upgrade">upgrade membership</a> page.'
     
     template_values = {
       'msg_help1' : msg_help1

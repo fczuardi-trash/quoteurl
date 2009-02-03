@@ -46,6 +46,10 @@ body{
 .step.s1{
     width:27%;
 }
+#quote-size-limit{
+    font-style:normal;
+    font-weight:bold;
+}
 
 /*------ STEP 2 -------*/
 .step.s2{

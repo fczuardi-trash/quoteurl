@@ -41,35 +41,62 @@ var preferences = {
 
 /** Load the contents of the tweet to be added to the preview panel **/
 function loadTweet(){
+    //extract id from the input
+    var statusId = $('status-id-field').get('value').replace(/(http:\/\/twitter.com\/.*\/status\/)?([^\/|\?|#]*).*/ig,'$2')
+    //warn the user if her limit exceeded
+    if ($$('li').length >= $('quote-size-limit').get('text')) return limitExceeded()
+    //warn the user if the tweet is already listed
+    if (tweetlist[statusId] != undefined) return dupeTweet()
     //disable add button
     $('add-tweet-button').set('disabled','disabled')
     $('add-tweet-button').set('value','…')
-    //extract id from the input
-    var statusId = $('status-id-field').get('value').replace(/(http:\/\/twitter.com\/.*\/status\/)?([^\/|\?|#]*).*/ig,'$2')
     //request tweet
     var url = '/a/loadtweet'
     var jsonRequest = new Request.JSON({'url': url, onComplete: requestComplete, onSuccess: onTweetLoaded, onFailure: onTweetLoadFailure}).get({'id': statusId, 'fmt': 'json'});
     return false
 }
 
+function warnUser(msg, mode, delay){
+    if (delay==undefined) delay = 2300;
+    var feedbackdiv = $('feedback')
+    var color = (mode=='FAIL') ? '#c33' : '#3c3'
+    var background_color = (mode=='FAIL') ? '#fee' : '#efe'
+    feedbackdiv.className = mode
+    feedbackdiv.style.backgroundColor = color
+    $('feedback-message').set('text', msg)
+    feedbackdiv.fade('show')
+    feedbackdiv.tween('background-color', background_color)
+    setTimeout(function(){$('feedback').fade('out')}, delay)
+    return false
+}
+function limitExceeded(){
+    warnUser('FAIL: You have reached your quote size limit, try removing some by clicking the "x" buttons.','FAIL',4000)
+    return false
+}
+function dupeTweet(){
+    warnUser('Hooray! This tweet is already on your list.','WIN',3000);
+    return requestComplete()
+}
 /** Callback function when the request completes, regardless of if it succeded or failed **/
-function requestComplete(r){
+function requestComplete(){
     //re-enable add button and clean the text input
     $('add-tweet-button').set('value','+')
     $('add-tweet-button').erase('disabled')
     $('status-id-field').set('value','')
+    return false
 }
 
 /** Callback function to run if there was an error **/
 function onTweetLoadFailure(r){
     console.log('FAIL')
     console.log(r)
-    var feedbackdiv = $('feedback')
-    feedbackdiv.className = 'FAIL'
-    feedbackdiv.style.backgroundColor = '#c33'
-    feedbackdiv.fade('show')
-    feedbackdiv.tween('background-color', '#fee')
-    setTimeout(function(){$('feedback').fade('out')}, 2300)
+    switch(r.status){
+        case 403:
+            warnUser('FAIL: 403 - You cannot quote from private accounts.','FAIL')
+            break
+        default:
+            warnUser('FAIL: '+r.status+' - Contact support.','FAIL')
+    }
 }
 
 /** Callback function to run if the tweet content is returned **/
@@ -146,10 +173,7 @@ function tweetComesBefore(a,b){
 /** Remove the Tweet from the preview panel and from the list **/
 function removeTweet(del_button){
     var tweet_id = del_button.id.substring('del_'.length, del_button.id.length)
-    console.log(tweet_id)
-    console.log(tweetlist)
     delete tweetlist[tweet_id]
-    console.log(tweetlist)
     $('status_'+tweet_id).dispose()
     return false
 }
