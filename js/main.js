@@ -56,27 +56,6 @@ function loadTweet(){
     return false
 }
 
-function warnUser(msg, mode, delay){
-    if (delay==undefined) delay = 2300;
-    var feedbackdiv = $('feedback')
-    var color = (mode=='FAIL') ? '#c33' : '#3c3'
-    var background_color = (mode=='FAIL') ? '#fee' : '#efe'
-    feedbackdiv.className = mode
-    feedbackdiv.style.backgroundColor = color
-    $('feedback-message').set('text', msg)
-    feedbackdiv.fade('show')
-    feedbackdiv.tween('background-color', background_color)
-    setTimeout(function(){$('feedback').fade('out')}, delay)
-    return false
-}
-function limitExceeded(){
-    warnUser('FAIL: You have reached your quote size limit, try removing some by clicking the "x" buttons.','FAIL',4000)
-    return false
-}
-function dupeTweet(){
-    warnUser('Hooray! This tweet is already on your list.','WIN',3000);
-    return requestComplete()
-}
 /** Callback function when the request completes, regardless of if it succeded or failed **/
 function requestComplete(){
     //re-enable add button and clean the text input
@@ -84,19 +63,6 @@ function requestComplete(){
     $('add-tweet-button').erase('disabled')
     $('status-id-field').set('value','')
     return false
-}
-
-/** Callback function to run if there was an error **/
-function onTweetLoadFailure(r){
-    console.log('FAIL')
-    console.log(r)
-    switch(r.status){
-        case 403:
-            warnUser('FAIL: 403 - You cannot quote from private accounts.','FAIL')
-            break
-        default:
-            warnUser('FAIL: '+r.status+' - Contact support.','FAIL')
-    }
 }
 
 /** Callback function to run if the tweet content is returned **/
@@ -183,8 +149,55 @@ function createQuote(){
     return false
 }
 
+//--- Errors and Warnings ---
 
-//--- Utilities --
+/** 
+* Displays a message to the user
+* @param    msg     String - the message
+* @param    mode    String - the classname to use on the warning ('FAIL','WIN')
+* @param    delay   Number - the time in miliseconds the message will stay on screen
+**/
+function warnUser(msg, mode, delay){
+    if (delay==undefined) delay = 2300;
+    var feedbackdiv = $('feedback')
+    var color = (mode=='FAIL') ? '#c33' : '#3c3'
+    var background_color = (mode=='FAIL') ? '#fee' : '#efe'
+    feedbackdiv.className = mode
+    feedbackdiv.style.backgroundColor = color
+    $('feedback-message').set('text', msg)
+    feedbackdiv.fade('show')
+    feedbackdiv.tween('background-color', background_color)
+    setTimeout(function(){$('feedback').fade('out')}, delay)
+    return false
+}
+
+/** The user has tried to add more tweets than it is allowed to **/
+function limitExceeded(){
+    warnUser('FAIL: You have reached your quote size limit, try removing some by clicking the "x" buttons.','FAIL',4000)
+    return false
+}
+
+/** The user has tried to add a tweet that is already on the preview list **/
+function dupeTweet(){
+    warnUser('Hooray! This tweet is already on your list.','WIN',3000);
+    return requestComplete()
+}
+
+/** Callback function to run if there was an error loading the tweet **/
+function onTweetLoadFailure(r){
+    console.log('FAIL')
+    console.log(r)
+    switch(r.status){
+        case 403:
+            warnUser('FAIL: 403 - You cannot quote from private accounts.','FAIL')
+            break
+        default:
+            warnUser('FAIL: '+r.status+' - Contact support.','FAIL')
+    }
+}
+
+
+//--- Utilities ---
 
 
 /** Complete date plus hours, minutes and seconds as specified in ISO 8601 **/
