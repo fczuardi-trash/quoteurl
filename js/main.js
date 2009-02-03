@@ -48,7 +48,7 @@ function loadTweet(){
     //warn the user if the tweet is already listed
     if (tweetlist[statusId] != undefined) return dupeTweet()
     //disable add button
-    $('add-tweet-button').set('disabled','disabled')
+    $('add-tweet-button').set('disabled',true)
     $('add-tweet-button').set('value','…')
     //request tweet
     var url = '/a/loadtweet'
