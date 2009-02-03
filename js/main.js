@@ -185,15 +185,8 @@ function dupeTweet(){
 
 /** Callback function to run if there was an error loading the tweet **/
 function onTweetLoadFailure(r){
-    console.log('FAIL')
     console.log(r)
-    switch(r.status){
-        case 403:
-            warnUser('FAIL: 403 - You cannot quote from private accounts.','FAIL')
-            break
-        default:
-            warnUser('FAIL: '+r.status+' - Contact support.','FAIL')
-    }
+    warnUser('FAIL: '+r.status+' - '+JSON.decode(r.responseText).error,'FAIL')
 }
 
 
