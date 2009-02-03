@@ -44,25 +44,63 @@ from google.appengine.api import memcache
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 
+
+#--- CONSTANTS ---
 MAX_QUOTE_SIZE_SIGNED_OUT = 4
 MAX_QUOTE_SIZE_SIGNED_IN  = 10
 LOADED_TWEET_CACHE_TIME   = 60*60 # one hour
 
+
+#--- MODELS ---
+class TwitterUser(db.Model):
+  description       = db.StringProperty()
+  followers_count   = db.IntegerProperty()
+  user_id           = db.StringProperty()
+  numericuser_id    = db.IntegerProperty()
+  location          = db.StringProperty()
+  name              = db.StringProperty()
+  profile_image_url = db.LinkProperty()
+  protected         = db.BooleanProperty()
+  screen_name       = db.StringProperty()
+  url               = db.LinkProperty()
+  json              = db.TextProperty()
+
+class Tweet(db.Model):
+  tweet_id                      = db.StringProperty()
+  numeric_tweet_id              = db.IntegerProperty()
+  created_at                    = db.DateTimeProperty()
+  favorited                     = db.BooleanProperty()
+  in_reply_to_screen_name       = db.StringProperty()
+  in_reply_to_status_id         = db.StringProperty()
+  numeric_in_reply_to_status_id = db.IntegerProperty()
+  in_reply_to_user_id           = db.StringProperty()
+  source                        = db.StringProperty()
+  text                          = db.StringProperty()
+  truncated                     = db.BooleanProperty()
+  user                          = db.ReferenceProperty(TwitterUser)
+  imported_date                 = db.DateTimeProperty(auto_now_add=True)
+  json                          = db.TextProperty()
+
 class Dialogue(db.Model):
   title             = db.StringProperty()
-  alias             = db.StringProperty()
   status_id_list    = db.StringListProperty()
   authors           = db.StringProperty()
   author_list       = db.StringListProperty()
-  quoter            = db.UserProperty()
+  quoted_by         = db.UserProperty()
   quoter_ip         = db.StringProperty()
   quoter_user_agent = db.StringProperty()
+  alias             = db.StringProperty()
   created_date      = db.DateTimeProperty(auto_now_add=True)
-  content_json      = db.TextProperty()
+  json              = db.TextProperty()
 
+
+#--- HELPERS ---
 class AccessHelper():
   def isProUser(User):
     return False
+
+
+#--- ENTRYPOINTS ---
 
 class MainPage(webapp.RequestHandler):
   def get(self):
@@ -95,29 +133,28 @@ class LoadTweet(webapp.RequestHandler):
         memcache.add(key, result.content, LOADED_TWEET_CACHE_TIME)
         return True
       else:
-        self.error(result.status_code)
+        self.response.set_status(result.status_code)
+        self.response.out.write(result.content)
         return False
 
 class CreateQuote(webapp.RequestHandler):
   def post(self):
-    status_list = cgi.escape(self.request.get('statuses')).replace(',',' ').split()
-    authors_list = cgi.escape(self.request.get('authors')).replace(',',' ').split()
-    content_json = cgi.escape(self.request.get('content_json'))
-    # status_list.sort()
-    user = users.get_current_user()
-    ip = os.environ['REMOTE_ADDR']
-    ua = os.environ['HTTP_USER_AGENT']
-    content = []
+    status_list   = cgi.escape(self.request.get('statuses')).replace(',',' ').split()
+    authors_list  = cgi.escape(self.request.get('authors')).replace(',',' ').split()
+    json          = cgi.escape(self.request.get('json'))
+    user          = users.get_current_user()
+    ip            = os.environ['REMOTE_ADDR']
+    ua            = os.environ['HTTP_USER_AGENT']
     dialogue = Dialogue()
-    dialogue.title = ', '.join(status_list)
+    dialogue.title = ' '.join(status_list)
     dialogue.status_id_list = status_list
     dialogue.quoter = user
     dialogue.quoter_ip = ip
     dialogue.quoter_user_agent = ua
     dialogue.alias = None
-    dialogue.authors = None
-    dialogue.author_list = []
-    dialogue.content_json = content_json
+    dialogue.authors = ' '.join(authors_list)
+    dialogue.author_list = authors_list
+    dialogue.json = json
     template_values = {
       'dialogue'    : dialogue
     }
@@ -134,8 +171,9 @@ class UpgradeMembership(webapp.RequestHandler):
     template_values = {}
     path = os.path.join(os.path.dirname(__file__), 'templates/upgrade.html')
     self.response.out.write(template.render(path, template_values))
-    
 
+
+#--- MAPPINGS ---
 def main():
   application = webapp.WSGIApplication(
   [
