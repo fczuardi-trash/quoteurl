@@ -64,7 +64,12 @@ function requestComplete(r){
 function onTweetLoadFailure(r){
     console.log('FAIL')
     console.log(r)
-    
+    var feedbackdiv = $('feedback')
+    feedbackdiv.className = 'FAIL'
+    feedbackdiv.style.backgroundColor = '#c33'
+    feedbackdiv.fade('show')
+    feedbackdiv.tween('background-color', '#fee')
+    setTimeout(function(){$('feedback').fade('out')}, 2300)
 }
 
 /** Callback function to run if the tweet content is returned **/
@@ -83,6 +88,7 @@ function addTweetToPreview(tweet){
     var newTweet = new Element('li',{
         'id' : 'status_'+tweet.id,
         'class' : 'hentry status u-'+tweet.user.screen_name,
+        'style' : 'left:-100%',
         '_time' : tweet_time})
     var html = ''
     html += '    <div class="thumb vcard author">'
@@ -113,6 +119,9 @@ function addTweetToPreview(tweet){
         for(var i=0; i< quote_tweets.length; i++){
             if (tweetComesBefore(newTweet, quote_tweets[i])){
                 newTweet.inject(quote_tweets[i],'before')
+                quote_tweets[i].style.top = '-'+newTweet.offsetHeight+'px'
+                quote_tweets[i].set('tween', {duration: 'short'})
+                quote_tweets[i].tween('top', '0px')
                 break
             }
             //last position
@@ -121,7 +130,8 @@ function addTweetToPreview(tweet){
             }
         }
     }
-    
+    newTweet.set('tween', {duration: 'long'});
+    newTweet.tween('left', '0%');
 }
 
 /** Compare 2 tweets and return true if tweet a comes before b in the current ordering (timestamp-based) **/

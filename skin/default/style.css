@@ -1,7 +1,35 @@
+/*---- GENERAL ----*/
 body{
     font-family: 'Lucida Grande',sans-serif;
     background-color: #ccc;
 }
+
+/*--- FEEDBACK MESSAGES --*/
+#feedback{
+    width:90%;
+    text-align:center;
+    font-size:1em;
+    border: 1px solid;
+    margin:auto;
+    line-height:0;
+    font-size:0.9em;
+    position:relative;
+    z-index:2;
+    margin-top:-2em;
+    visibility:hidden;
+}
+#feedback.FAIL{
+    border-color:#c33;
+    color:#c33;
+    background-color:#fee;
+}
+#feedback.WIN{
+    border-color:#3c3;
+    color:#3c3;
+    background-color:#efe;
+}
+
+/*---CONTENT -------*/
 .content{
     height:70%;
 }
@@ -11,11 +39,14 @@ body{
     margin:.5%;
     background-color: #eee;
     min-height:90%;
+    overflow:hidden;
 }
+
 /*------ STEP 1 -------*/
 .step.s1{
     width:27%;
 }
+
 /*------ STEP 2 -------*/
 .step.s2{
     width:47%;
@@ -28,6 +59,8 @@ body{
     list-style:none;
     padding-top:.7em;
     border-top:1px dashed #ccc;
+    position:relative;
+    background-color: #eee;
 }
 .thumb.vcard{
     float:left;

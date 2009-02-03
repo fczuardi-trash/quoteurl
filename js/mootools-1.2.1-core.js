@@ -1809,6 +1809,148 @@ if (Browser.Engine.webkit && Browser.Engine.version < 420) Element.Properties.te
 
 
 /*
+Script: Element.Style.js
+	Contains methods for interacting with the styles of Elements in a fashionable way.
+
+License:
+	MIT-style license.
+*/
+
+Element.Properties.styles = {set: function(styles){
+	this.setStyles(styles);
+}};
+
+Element.Properties.opacity = {
+
+	set: function(opacity, novisibility){
+		if (!novisibility){
+			if (opacity == 0){
+				if (this.style.visibility != 'hidden') this.style.visibility = 'hidden';
+			} else {
+				if (this.style.visibility != 'visible') this.style.visibility = 'visible';
+			}
+		}
+		if (!this.currentStyle || !this.currentStyle.hasLayout) this.style.zoom = 1;
+		if (Browser.Engine.trident) this.style.filter = (opacity == 1) ? '' : 'alpha(opacity=' + opacity * 100 + ')';
+		this.style.opacity = opacity;
+		this.store('opacity', opacity);
+	},
+
+	get: function(){
+		return this.retrieve('opacity', 1);
+	}
+
+};
+
+Element.implement({
+
+	setOpacity: function(value){
+		return this.set('opacity', value, true);
+	},
+
+	getOpacity: function(){
+		return this.get('opacity');
+	},
+
+	setStyle: function(property, value){
+		switch (property){
+			case 'opacity': return this.set('opacity', parseFloat(value));
+			case 'float': property = (Browser.Engine.trident) ? 'styleFloat' : 'cssFloat';
+		}
+		property = property.camelCase();
+		if ($type(value) != 'string'){
+			var map = (Element.Styles.get(property) || '@').split(' ');
+			value = $splat(value).map(function(val, i){
+				if (!map[i]) return '';
+				return ($type(val) == 'number') ? map[i].replace('@', Math.round(val)) : val;
+			}).join(' ');
+		} else if (value == String(Number(value))){
+			value = Math.round(value);
+		}
+		this.style[property] = value;
+		return this;
+	},
+
+	getStyle: function(property){
+		switch (property){
+			case 'opacity': return this.get('opacity');
+			case 'float': property = (Browser.Engine.trident) ? 'styleFloat' : 'cssFloat';
+		}
+		property = property.camelCase();
+		var result = this.style[property];
+		if (!$chk(result)){
+			result = [];
+			for (var style in Element.ShortStyles){
+				if (property != style) continue;
+				for (var s in Element.ShortStyles[style]) result.push(this.getStyle(s));
+				return result.join(' ');
+			}
+			result = this.getComputedStyle(property);
+		}
+		if (result){
+			result = String(result);
+			var color = result.match(/rgba?\([\d\s,]+\)/);
+			if (color) result = result.replace(color[0], color[0].rgbToHex());
+		}
+		if (Browser.Engine.presto || (Browser.Engine.trident && !$chk(parseInt(result)))){
+			if (property.test(/^(height|width)$/)){
+				var values = (property == 'width') ? ['left', 'right'] : ['top', 'bottom'], size = 0;
+				values.each(function(value){
+					size += this.getStyle('border-' + value + '-width').toInt() + this.getStyle('padding-' + value).toInt();
+				}, this);
+				return this['offset' + property.capitalize()] - size + 'px';
+			}
+			if ((Browser.Engine.presto) && String(result).test('px')) return result;
+			if (property.test(/(border(.+)Width|margin|padding)/)) return '0px';
+		}
+		return result;
+	},
+
+	setStyles: function(styles){
+		for (var style in styles) this.setStyle(style, styles[style]);
+		return this;
+	},
+
+	getStyles: function(){
+		var result = {};
+		Array.each(arguments, function(key){
+			result[key] = this.getStyle(key);
+		}, this);
+		return result;
+	}
+
+});
+
+Element.Styles = new Hash({
+	left: '@px', top: '@px', bottom: '@px', right: '@px',
+	width: '@px', height: '@px', maxWidth: '@px', maxHeight: '@px', minWidth: '@px', minHeight: '@px',
+	backgroundColor: 'rgb(@, @, @)', backgroundPosition: '@px @px', color: 'rgb(@, @, @)',
+	fontSize: '@px', letterSpacing: '@px', lineHeight: '@px', clip: 'rect(@px @px @px @px)',
+	margin: '@px @px @px @px', padding: '@px @px @px @px', border: '@px @ rgb(@, @, @) @px @ rgb(@, @, @) @px @ rgb(@, @, @)',
+	borderWidth: '@px @px @px @px', borderStyle: '@ @ @ @', borderColor: 'rgb(@, @, @) rgb(@, @, @) rgb(@, @, @) rgb(@, @, @)',
+	zIndex: '@', 'zoom': '@', fontWeight: '@', textIndent: '@px', opacity: '@'
+});
+
+Element.ShortStyles = {margin: {}, padding: {}, border: {}, borderWidth: {}, borderStyle: {}, borderColor: {}};
+
+['Top', 'Right', 'Bottom', 'Left'].each(function(direction){
+	var Short = Element.ShortStyles;
+	var All = Element.Styles;
+	['margin', 'padding'].each(function(style){
+		var sd = style + direction;
+		Short[style][sd] = All[sd] = '@px';
+	});
+	var bd = 'border' + direction;
+	Short.border[bd] = All[bd] = '@px @ rgb(@, @, @)';
+	var bdw = bd + 'Width', bds = bd + 'Style', bdc = bd + 'Color';
+	Short[bd] = {};
+	Short.borderWidth[bdw] = Short[bd][bdw] = All[bdw] = '@px';
+	Short.borderStyle[bds] = Short[bd][bds] = All[bds] = '@';
+	Short.borderColor[bdc] = Short[bd][bdc] = All[bdc] = 'rgb(@, @, @)';
+});
+
+
+/*
 Script: JSON.js
 	JSON encoder and decoder.
 
@@ -1858,6 +2000,370 @@ Native.implement([Hash, Array, String, Number], {
 
 	toJSON: function(){
 		return JSON.encode(this);
+	}
+
+});
+
+
+/*
+Script: Fx.js
+	Contains the basic animation logic to be extended by all other Fx Classes.
+
+License:
+	MIT-style license.
+*/
+
+var Fx = new Class({
+
+	Implements: [Chain, Events, Options],
+
+	options: {
+		/*
+		onStart: $empty,
+		onCancel: $empty,
+		onComplete: $empty,
+		*/
+		fps: 50,
+		unit: false,
+		duration: 500,
+		link: 'ignore'
+	},
+
+	initialize: function(options){
+		this.subject = this.subject || this;
+		this.setOptions(options);
+		this.options.duration = Fx.Durations[this.options.duration] || this.options.duration.toInt();
+		var wait = this.options.wait;
+		if (wait === false) this.options.link = 'cancel';
+	},
+
+	getTransition: function(){
+		return function(p){
+			return -(Math.cos(Math.PI * p) - 1) / 2;
+		};
+	},
+
+	step: function(){
+		var time = $time();
+		if (time < this.time + this.options.duration){
+			var delta = this.transition((time - this.time) / this.options.duration);
+			this.set(this.compute(this.from, this.to, delta));
+		} else {
+			this.set(this.compute(this.from, this.to, 1));
+			this.complete();
+		}
+	},
+
+	set: function(now){
+		return now;
+	},
+
+	compute: function(from, to, delta){
+		return Fx.compute(from, to, delta);
+	},
+
+	check: function(caller){
+		if (!this.timer) return true;
+		switch (this.options.link){
+			case 'cancel': this.cancel(); return true;
+			case 'chain': this.chain(caller.bind(this, Array.slice(arguments, 1))); return false;
+		}
+		return false;
+	},
+
+	start: function(from, to){
+		if (!this.check(arguments.callee, from, to)) return this;
+		this.from = from;
+		this.to = to;
+		this.time = 0;
+		this.transition = this.getTransition();
+		this.startTimer();
+		this.onStart();
+		return this;
+	},
+
+	complete: function(){
+		if (this.stopTimer()) this.onComplete();
+		return this;
+	},
+
+	cancel: function(){
+		if (this.stopTimer()) this.onCancel();
+		return this;
+	},
+
+	onStart: function(){
+		this.fireEvent('start', this.subject);
+	},
+
+	onComplete: function(){
+		this.fireEvent('complete', this.subject);
+		if (!this.callChain()) this.fireEvent('chainComplete', this.subject);
+	},
+
+	onCancel: function(){
+		this.fireEvent('cancel', this.subject).clearChain();
+	},
+
+	pause: function(){
+		this.stopTimer();
+		return this;
+	},
+
+	resume: function(){
+		this.startTimer();
+		return this;
+	},
+
+	stopTimer: function(){
+		if (!this.timer) return false;
+		this.time = $time() - this.time;
+		this.timer = $clear(this.timer);
+		return true;
+	},
+
+	startTimer: function(){
+		if (this.timer) return false;
+		this.time = $time() - this.time;
+		this.timer = this.step.periodical(Math.round(1000 / this.options.fps), this);
+		return true;
+	}
+
+});
+
+Fx.compute = function(from, to, delta){
+	return (to - from) * delta + from;
+};
+
+Fx.Durations = {'short': 250, 'normal': 500, 'long': 1000};
+
+
+/*
+Script: Fx.CSS.js
+	Contains the CSS animation logic. Used by Fx.Tween, Fx.Morph, Fx.Elements.
+
+License:
+	MIT-style license.
+*/
+
+Fx.CSS = new Class({
+
+	Extends: Fx,
+
+	//prepares the base from/to object
+
+	prepare: function(element, property, values){
+		values = $splat(values);
+		var values1 = values[1];
+		if (!$chk(values1)){
+			values[1] = values[0];
+			values[0] = element.getStyle(property);
+		}
+		var parsed = values.map(this.parse);
+		return {from: parsed[0], to: parsed[1]};
+	},
+
+	//parses a value into an array
+
+	parse: function(value){
+		value = $lambda(value)();
+		value = (typeof value == 'string') ? value.split(' ') : $splat(value);
+		return value.map(function(val){
+			val = String(val);
+			var found = false;
+			Fx.CSS.Parsers.each(function(parser, key){
+				if (found) return;
+				var parsed = parser.parse(val);
+				if ($chk(parsed)) found = {value: parsed, parser: parser};
+			});
+			found = found || {value: val, parser: Fx.CSS.Parsers.String};
+			return found;
+		});
+	},
+
+	//computes by a from and to prepared objects, using their parsers.
+
+	compute: function(from, to, delta){
+		var computed = [];
+		(Math.min(from.length, to.length)).times(function(i){
+			computed.push({value: from[i].parser.compute(from[i].value, to[i].value, delta), parser: from[i].parser});
+		});
+		computed.$family = {name: 'fx:css:value'};
+		return computed;
+	},
+
+	//serves the value as settable
+
+	serve: function(value, unit){
+		if ($type(value) != 'fx:css:value') value = this.parse(value);
+		var returned = [];
+		value.each(function(bit){
+			returned = returned.concat(bit.parser.serve(bit.value, unit));
+		});
+		return returned;
+	},
+
+	//renders the change to an element
+
+	render: function(element, property, value, unit){
+		element.setStyle(property, this.serve(value, unit));
+	},
+
+	//searches inside the page css to find the values for a selector
+
+	search: function(selector){
+		if (Fx.CSS.Cache[selector]) return Fx.CSS.Cache[selector];
+		var to = {};
+		Array.each(document.styleSheets, function(sheet, j){
+			var href = sheet.href;
+			if (href && href.contains('://') && !href.contains(document.domain)) return;
+			var rules = sheet.rules || sheet.cssRules;
+			Array.each(rules, function(rule, i){
+				if (!rule.style) return;
+				var selectorText = (rule.selectorText) ? rule.selectorText.replace(/^\w+/, function(m){
+					return m.toLowerCase();
+				}) : null;
+				if (!selectorText || !selectorText.test('^' + selector + '$')) return;
+				Element.Styles.each(function(value, style){
+					if (!rule.style[style] || Element.ShortStyles[style]) return;
+					value = String(rule.style[style]);
+					to[style] = (value.test(/^rgb/)) ? value.rgbToHex() : value;
+				});
+			});
+		});
+		return Fx.CSS.Cache[selector] = to;
+	}
+
+});
+
+Fx.CSS.Cache = {};
+
+Fx.CSS.Parsers = new Hash({
+
+	Color: {
+		parse: function(value){
+			if (value.match(/^#[0-9a-f]{3,6}$/i)) return value.hexToRgb(true);
+			return ((value = value.match(/(\d+),\s*(\d+),\s*(\d+)/))) ? [value[1], value[2], value[3]] : false;
+		},
+		compute: function(from, to, delta){
+			return from.map(function(value, i){
+				return Math.round(Fx.compute(from[i], to[i], delta));
+			});
+		},
+		serve: function(value){
+			return value.map(Number);
+		}
+	},
+
+	Number: {
+		parse: parseFloat,
+		compute: Fx.compute,
+		serve: function(value, unit){
+			return (unit) ? value + unit : value;
+		}
+	},
+
+	String: {
+		parse: $lambda(false),
+		compute: $arguments(1),
+		serve: $arguments(0)
+	}
+
+});
+
+
+/*
+Script: Fx.Tween.js
+	Formerly Fx.Style, effect to transition any CSS property for an element.
+
+License:
+	MIT-style license.
+*/
+
+Fx.Tween = new Class({
+
+	Extends: Fx.CSS,
+
+	initialize: function(element, options){
+		this.element = this.subject = $(element);
+		this.parent(options);
+	},
+
+	set: function(property, now){
+		if (arguments.length == 1){
+			now = property;
+			property = this.property || this.options.property;
+		}
+		this.render(this.element, property, now, this.options.unit);
+		return this;
+	},
+
+	start: function(property, from, to){
+		if (!this.check(arguments.callee, property, from, to)) return this;
+		var args = Array.flatten(arguments);
+		this.property = this.options.property || args.shift();
+		var parsed = this.prepare(this.element, this.property, args);
+		return this.parent(parsed.from, parsed.to);
+	}
+
+});
+
+Element.Properties.tween = {
+
+	set: function(options){
+		var tween = this.retrieve('tween');
+		if (tween) tween.cancel();
+		return this.eliminate('tween').store('tween:options', $extend({link: 'cancel'}, options));
+	},
+
+	get: function(options){
+		if (options || !this.retrieve('tween')){
+			if (options || !this.retrieve('tween:options')) this.set('tween', options);
+			this.store('tween', new Fx.Tween(this, this.retrieve('tween:options')));
+		}
+		return this.retrieve('tween');
+	}
+
+};
+
+Element.implement({
+
+	tween: function(property, from, to){
+		this.get('tween').start(arguments);
+		return this;
+	},
+
+	fade: function(how){
+		var fade = this.get('tween'), o = 'opacity', toggle;
+		how = $pick(how, 'toggle');
+		switch (how){
+			case 'in': fade.start(o, 1); break;
+			case 'out': fade.start(o, 0); break;
+			case 'show': fade.set(o, 1); break;
+			case 'hide': fade.set(o, 0); break;
+			case 'toggle':
+				var flag = this.retrieve('fade:flag', this.get('opacity') == 1);
+				fade.start(o, (flag) ? 0 : 1);
+				this.store('fade:flag', !flag);
+				toggle = true;
+			break;
+			default: fade.start(o, arguments);
+		}
+		if (!toggle) this.eliminate('fade:flag');
+		return this;
+	},
+
+	highlight: function(start, end){
+		if (!end){
+			end = this.retrieve('highlight:original', this.getStyle('background-color'));
+			end = (end == 'transparent') ? '#fff' : end;
+		}
+		var tween = this.get('tween');
+		tween.start('background-color', start || '#ffff88', end).chain(function(){
+			this.setStyle('background-color', this.retrieve('highlight:original'));
+			tween.callChain();
+		}.bind(this));
+		return this;
 	}
 
 });
