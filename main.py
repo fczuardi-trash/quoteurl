@@ -58,17 +58,21 @@ LOADED_TWEET_CACHE_TIME   = 60*60 # one hour
 
 #--- MODELS ---
 class TwitterUser(db.Model):
-  description       = db.StringProperty()
-  followers_count   = db.IntegerProperty()
-  user_id           = db.StringProperty()
-  numeric_user_id   = db.IntegerProperty()
-  location          = db.StringProperty()
-  name              = db.StringProperty()
-  profile_image_url = db.LinkProperty()
-  protected         = db.BooleanProperty()
-  screen_name       = db.StringProperty()
-  url               = db.LinkProperty()
-  json              = db.TextProperty()
+  description             = db.StringProperty()
+  followers_count         = db.IntegerProperty()
+  user_id                 = db.StringProperty()
+  numeric_user_id         = db.IntegerProperty()
+  location                = db.StringProperty()
+  name                    = db.StringProperty()
+  profile_image_url       = db.LinkProperty()
+  protected               = db.BooleanProperty()
+  screen_name             = db.StringProperty()
+  url                     = db.LinkProperty()
+  updated_date            = db.DateTimeProperty(auto_now=True)
+  imported_date           = db.DateTimeProperty(auto_now_add=True)
+  json                    = db.TextProperty()
+  citations               = db.IntegerProperty(default=0)                # not real time
+  latest_citations_update = db.DateTimeProperty()
 
 class Tweet(db.Model):
   tweet_id                      = db.StringProperty()
@@ -84,28 +88,92 @@ class Tweet(db.Model):
   truncated                     = db.BooleanProperty()
   author_screen_name            = db.StringProperty()
   author_id                     = db.StringProperty()
-  user                          = db.ReferenceProperty(TwitterUser)
+  author                        = db.ReferenceProperty(TwitterUser)
+  updated_date                  = db.DateTimeProperty(auto_now=True)
   imported_date                 = db.DateTimeProperty(auto_now_add=True)
   json                          = db.TextProperty()
+  citations                     = db.IntegerProperty(default=0)  # not real time
+  latest_citations_update       = db.DateTimeProperty()
+
+class GitHubUser(db.Model):
+  screen_name       = db.StringProperty()
+  updated_date      = db.DateTimeProperty(auto_now=True)
+  imported_date     = db.DateTimeProperty(auto_now_add=True)
+  
+
+class QuoteURLUser(db.Model):
+  name                  = db.StringProperty()
+  description           = db.StringProperty()
+  screen_name           = db.StringProperty()
+  profile_image_url     = db.LinkProperty()
+  url                   = db.LinkProperty()
+  twitter_screen_name   = db.LinkProperty()
+  github_screen_name    = db.LinkProperty()
+  email                 = db.EmailProperty()
+  secondary_emails      = db.ListProperty(unicode)
+  location              = db.StringProperty()
+  geo_point             = db.GeoPtProperty()
+  quotes_created        = db.IntegerProperty(default=0)
+  birthday              = db.DateTimeProperty()
+  created_date          = db.DateTimeProperty(auto_now_add=True)
+  updated_date          = db.DateTimeProperty(auto_now=True)
+  membership_type       = db.StringProperty()
+  google_user           = db.UserProperty()
+  twitter_user          = db.ReferenceProperty(TwitterUser) #requires claim
+  github_user           = db.ReferenceProperty(GitHubUser)  #requires claim
+  rating                = db.RatingProperty()                  # not real time
+  latest_rating_update  = db.DateTimeProperty()
 
 class Dialogue(db.Model):
-  title             = db.StringProperty()
-  status_id_list    = db.StringListProperty()
-  authors           = db.StringProperty()
-  author_list       = db.StringListProperty()
-  author_id_list    = db.StringListProperty()
-  quoted_by         = db.UserProperty()
-  quoter_ip         = db.StringProperty()
-  quoter_user_agent = db.StringProperty()
-  alias             = db.StringProperty()
-  created_date      = db.DateTimeProperty(auto_now_add=True)
-  json              = db.TextProperty()
+  title                 = db.StringProperty()
+  tweet_id_list         = db.StringListProperty()
+  authors               = db.StringProperty()
+  author_list           = db.StringListProperty()
+  author_id_list        = db.StringListProperty()
+  quoted_by             = db.UserProperty()
+  quoter_ip             = db.StringProperty()
+  quoter_user_agent     = db.StringProperty()
+  alias                 = db.StringProperty()
+  tags                  = db.ListProperty(db.Category)
+  created_date          = db.DateTimeProperty(auto_now_add=True)
+  updated_date          = db.DateTimeProperty(auto_now=True)
+  json                  = db.TextProperty()
+  rating                = db.RatingProperty()  # not real time
+  latest_rating_update  = db.DateTimeProperty()
 
 
 #--- HELPERS ---
-class AccessHelper():
-  def isProUser(User):
-    return False
+def updateTwitterUserAttributes(user, dictionary):
+  # if the user entity already exists update it, otherwise create a new entity
+  user.description        = dictionary['description']
+  user.location           = dictionary['location']
+  user.name               = dictionary['name']
+  user.profile_image_url  = dictionary['profile_image_url']
+  user.screen_name        = dictionary['screen_name']
+  user.url                = dictionary['url']
+  user.protected          = bool(dictionary['protected'])
+  user.followers_count    = int(dictionary['followers_count'])
+  user.user_id            = str(dictionary['id'])
+  user.numeric_user_id    = int(dictionary['id'])
+  user.json               = simplejson.dumps(dictionary)
+  return user
+
+def updateTweetAttributes(tweet, dictionary):
+  tweet.created_at              = datetime.strptime(dictionary['created_at'], "%a %b %d %H:%M:%S +0000 %Y")
+  tweet.in_reply_to_screen_name = dictionary['in_reply_to_screen_name']
+  tweet.source                  = dictionary['source']
+  tweet.text                    = dictionary['text']
+  tweet.author_screen_name      = dictionary['user']['screen_name']
+  tweet.tweet_id                = str(dictionary['id'])
+  tweet.numeric_tweet_id        = int(dictionary['id'])
+  tweet.favorited               = bool(dictionary['favorited'])
+  tweet.in_reply_to_status_id   = str(dictionary['in_reply_to_status_id'])
+  tweet.truncated               = bool(dictionary['truncated'])
+  tweet.author_id               = str(dictionary['user']['id'])
+  tweet.in_reply_to_user_id     = str(dictionary['in_reply_to_user_id'])
+  tweet.json                    = simplejson.dumps(dictionary)
+  if dictionary['in_reply_to_status_id'] is not None:
+    tweet.numeric_in_reply_to_status_id = int(dictionary['in_reply_to_status_id'])
 
 
 #--- ENTRYPOINTS ---
@@ -145,21 +213,6 @@ class LoadTweet(webapp.RequestHandler):
         self.response.out.write(result.content)
         return False
 
-def updateTwitterUserData(user, dictionary):
-  # if the user entity already exists update it, otherwise create a new entity
-  user.description        = dictionary['description']
-  user.location           = dictionary['location']
-  user.name               = dictionary['name']
-  user.profile_image_url  = dictionary['profile_image_url']
-  user.screen_name        = dictionary['screen_name']
-  user.url                = dictionary['url']
-  user.protected          = bool(dictionary['protected'])
-  user.followers_count    = int(dictionary['followers_count'])
-  user.user_id            = str(dictionary['id'])
-  user.numeric_user_id    = int(dictionary['id'])
-  user.json               = simplejson.dumps(dictionary)
-  return user
-
 class CreateQuote(webapp.RequestHandler):
     
   def post(self):
@@ -170,125 +223,113 @@ class CreateQuote(webapp.RequestHandler):
     user            = users.get_current_user()
     ip              = os.environ['REMOTE_ADDR']
     ua              = os.environ['HTTP_USER_AGENT']
-    esisting_users  = {}
-    esisting_tweets = {}
     tweets_to_put   = []
     users_to_put    = []
     remaining_authors = list(sets.Set(author_id_list[:]))
     
-    #check to see if the user is trying to manually cheat her limits
+    # logged user or anonymous?
     if not user:
       quote_limit = MAX_QUOTE_SIZE_SIGNED_OUT
+      quoteURL_user = None
+      dialogue_parent = None
+      dialogue_user_email = 'ANONYMOUS'
     else:
       quote_limit = MAX_QUOTE_SIZE_SIGNED_IN
+      quoteURL_user = QuoteURLUser.get_or_insert(key_name='QuoteURLUser:'+user.email(),
+                                                  email = user.email(),
+                                                  google_user = user
+                                                )
+      dialogue_parent = quoteURL_user
+      dialogue_user_email = user.email()
+      
+
+    #check to see if the user is trying to manually cheat her limits
     if (len(status_list) > quote_limit):
       path = os.path.join(os.path.dirname(__file__), 'templates/error_limit_exceeded.html')
       self.response.set_status(400)
       self.response.out.write(template.render(path, {'login_url' : '/a/login'}))
       return False
 
-    # query the DataStore to get existing user entities
-    user_query = TwitterUser.gql("WHERE user_id IN :user_id_list ", user_id_list=author_id_list)
-    for esisting_user in user_query:
-      esisting_users[esisting_user.user_id] = esisting_user
-
-    # query the DataStore to get existing tweet entities
-    tweet_query = Tweet.gql("WHERE user_id IN :tweet_id_list ", tweet_id_list=status_list)
-    for esisting_tweet in tweet_query:
-      esisting_tweets[esisting_tweet.tweet_id] = esisting_tweet
-
     # iterate through all quoted tweets and see if it's cached or exists in the DataStore, if not load their contents from Twitter
     for tweet_id in status_list:
-      key = 'tweet_'+ tweet_id +'.json' #cache key
-      
-      if tweet_id not in esisting_tweets:
-        # the tweet entity does not exists in the DataStore and needs to be created
-        # try to get the json from cache
-        tweet_json = memcache.get(key)
-        if tweet_json is None:
-          # json not on cache, load from twitter again
-          #@TODO
-          self.response.out.write('Zuardi needs to implement the re-fetch from Twitter after cache timeout. Blame him! :)')
-          return False
-        else:
-          # json is on the cache, good
-          pass
-        # a new tweet entity needs to be created based on the loaded json
-        new_tweet = Tweet(key_name=str(loaded_tweet['id']))
-        loaded_tweet = simplejson.loads(tweet_json)
-        new_tweet.tweet_id                = str(loaded_tweet['id'])
-        new_tweet.numeric_tweet_id        = int(loaded_tweet['id'])
-        new_tweet.created_at              = datetime.strptime(loaded_tweet['created_at'], "%a %b %d %H:%M:%S +0000 %Y")
-        new_tweet.favorited               = bool(loaded_tweet['favorited'])
-        new_tweet.in_reply_to_screen_name = loaded_tweet['in_reply_to_screen_name']
-        new_tweet.in_reply_to_status_id   = str(loaded_tweet['in_reply_to_status_id'])
-        new_tweet.in_reply_to_user_id     = loaded_tweet['in_reply_to_user_id']
-        new_tweet.source                  = loaded_tweet['source']
-        new_tweet.text                    = loaded_tweet['text']
-        new_tweet.truncated               = bool(loaded_tweet['truncated'])
-        new_tweet.json                    = tweet_json
-        new_tweet.author_screen_name      = loaded_tweet['user']['screen_name']
-        new_tweet.author_id               = str(loaded_tweet['user']['id'])
-        if loaded_tweet['in_reply_to_status_id'] is not None:
-          new_tweet.numeric_in_reply_to_status_id = int(loaded_tweet['in_reply_to_status_id'])
-        # check if the user has been included already in the "list of users to put"
-        if  new_tweet.author_id in remaining_authors:
-          # check if the user entity doesnt exists and so needs to be created, or exists and so need to be updated
-          if new_tweet.author_id in esisting_users:
-            #user entity exists, update
-            updateTwitterUserData(esisting_users[new_tweet.author_id], loaded_tweet['user'])
-            users_to_put.append(esisting_users[new_tweet.author_id])
-          else:
-            #user entity does not exist, create
-            new_twitter_user = TwitterUser(key_name=new_tweet.author_id)
-            updateTwitterUserData(new_twitter_user, loaded_tweet['user'])
-            users_to_put.append(new_twitter_user)
-          remaining_authors.remove(new_tweet.author_id)
-        else:
-          pass
-        tweets_to_put.append(new_tweet)
+      cache_key = 'tweet_'+ tweet_id +'.json'
+      tweet_json = memcache.get(cache_key)
+      if tweet_json is None:
+        # json not on cache, load from twitter again
+        #@TODO
+        self.response.out.write('Zuardi needs to implement the re-fetch from Twitter after cache timeout. Blame him! :)')
+        return False
       else:
-        # the DataStore already contains this tweet, so no need to create the tweet entity
-        tweets_to_put.append(esisting_tweets[tweet_id])
-        continue
-      # end for
-
+        # json is on the cache, good
+        pass
+      
+      # load json info into a python object
+      loaded_tweet = simplejson.loads(tweet_json)
+      
+      # create/update tweet
+      tweet = Tweet.get_or_insert(key_name='Tweet:'+str(loaded_tweet['id']))
+      updateTweetAttributes(tweet, loaded_tweet)
+      tweets_to_put.append(tweet)
+      
+      # check if the user has been included already in the "list of users to put"
+      if  tweet.author_id in remaining_authors:
+        #create/update twitter user
+        twitter_user = TwitterUser.get_or_insert(key_name='TwitterUser:'+tweet.author_id)
+        updateTwitterUserAttributes(twitter_user, loaded_tweet['user'])
+        users_to_put.append(twitter_user)
+        remaining_authors.remove(tweet.author_id)
+      else:
+        pass
+    
     # put all users in the DataStore, updating the existing ones
     user_keys = db.put(users_to_put);
     
-    
-    # update the information on the tweets to put queue to include user datastore Keys
+    # update the information on the tweets to include author datastore references
     for tweet in tweets_to_put:
-      
+      tweet.author = TwitterUser.get_by_key_name('TwitterUser:'+tweet.author_id).key()
+    # put all tweets in the DataStore, updating the existing ones
+    tweet_keys = db.put(tweets_to_put);
     
-    template_values = {
-      'tweets_to_put' : tweets_to_put,
-      'users_to_put'  : users_to_put,
-      'user_keys'     : user_keys
-    }
-    path = os.path.join(os.path.dirname(__file__), 'templates/test.html')
-    self.response.out.write(template.render(path, template_values))
-    return True
-    
-    #  user                         = db.ReferenceProperty(TwitterUser)
-    
-    dialogue = Dialogue()
-    dialogue.title = ' '.join(status_list)
-    dialogue.status_id_list = status_list
-    dialogue.quoter = user
+    dialogue_title = ' '.join(status_list)
+    dialogue = Dialogue.get_or_insert(
+                                    parent=dialogue_parent,
+                                    key_name='Dialogue:'+dialogue_user_email+':'+dialogue_title
+                                    )
+    dialogue.title = dialogue_title
+    dialogue.tweet_id_list = status_list
+    dialogue.quoted_by = user
     dialogue.quoter_ip = ip
     dialogue.quoter_user_agent = ua
     dialogue.alias = None
     dialogue.authors = ' '.join(author_list)
     dialogue.author_list = author_list
     dialogue.author_id_list = author_id_list
+    dialogue.rating = None
+    dialogue.tags = []
     dialogue.json = json
+
+    # a transaction that: 
+    # 1- increments the quotes_created counter for the quoteURLUser
+    # 2- save quoteURLUser and the created dialogue entity
+    def save_dialogue():
+      quoteURL_user.quotes_created += 1
+      db.put([quoteURL_user, dialogue])
+    
+    if not user:
+      # quotes created anonymously can be saved direct
+      dialogue.put()
+    else:
+      db.run_in_transaction(save_dialogue)
+    
     template_values = {
-      'dialogue'    : dialogue,
+      'tweets_to_put' : tweets_to_put,
+      'users_to_put'  : users_to_put,
+      'dialogue'      : dialogue
     }
     path = os.path.join(os.path.dirname(__file__), 'templates/show.html')
     self.response.out.write(template.render(path, template_values))
     return True
+
     
 class SignIn(webapp.RequestHandler):
   def get(self):

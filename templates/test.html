@@ -4,7 +4,8 @@
             You submitted:
         </p>
         <h2>Tweets</h2>
-        {{user_keys}}
+        <p>{{user_keys}}</p>
+        <p>{{tweet_keys}}</p>
         {% for tweet in tweets_to_put %}
             <ul>
                 <li>{{tweet.tweet_id}}</li>
