@@ -1,5 +1,11 @@
 <html>
     <body>
+        {% if short %}
+        <h1>Great Success! Your QuoteURL is:</h1>
+        <pre>
+            <a href="http://{{app_url}}/{{short}}">http://{{app_url}}/{{short}}</a>
+        </pre>
+        {% endif %}
         {% for tweet in tweets %}
         <div class="thumb vcard author">
             <a class="url" href="http://twitter.com/{{tweet.user.screen_name}}">

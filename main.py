@@ -47,6 +47,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from django.utils import simplejson
 from datetime import datetime
+from random import randrange
 
 
 
@@ -54,7 +55,7 @@ from datetime import datetime
 MAX_QUOTE_SIZE_SIGNED_OUT = 4
 MAX_QUOTE_SIZE_SIGNED_IN  = 10
 LOADED_TWEET_CACHE_TIME   = 60*60 # one hour
-
+URL_HASH_SIZE             = 5
 
 #--- MODELS ---
 class TwitterUser(db.Model):
@@ -126,6 +127,8 @@ class QuoteURLUser(db.Model):
 
 class Dialogue(db.Model):
   title                 = db.StringProperty()
+  short                 = db.StringProperty()
+  alias                 = db.StringProperty()
   tweet_id_list         = db.StringListProperty()
   authors               = db.StringProperty()
   author_list           = db.StringListProperty()
@@ -133,7 +136,6 @@ class Dialogue(db.Model):
   quoted_by             = db.UserProperty()
   quoter_ip             = db.StringProperty()
   quoter_user_agent     = db.StringProperty()
-  alias                 = db.StringProperty()
   tags                  = db.ListProperty(db.Category)
   created_date          = db.DateTimeProperty(auto_now_add=True)
   updated_date          = db.DateTimeProperty(auto_now=True)
@@ -175,6 +177,11 @@ def updateTweetAttributes(tweet, dictionary):
   if dictionary['in_reply_to_status_id'] is not None:
     tweet.numeric_in_reply_to_status_id = int(dictionary['in_reply_to_status_id'])
 
+def randomHash(size):
+  c = "abcdefghijklmnopqrstuvxywz0123456789"
+  l, h = len(c) , ''
+  while len(h) < size: h += c[randrange(0,l)]
+  return h
 
 #--- ENTRYPOINTS ---
 
@@ -293,6 +300,7 @@ class CreateQuote(webapp.RequestHandler):
     tweet_keys = db.put(tweets_to_put);
     
     dialogue_title = ' '.join(status_list)
+    
     dialogue = Dialogue.get_or_insert(
                                     parent=dialogue_parent,
                                     key_name='Dialogue:'+dialogue_user_email+':'+dialogue_title
@@ -309,6 +317,11 @@ class CreateQuote(webapp.RequestHandler):
     dialogue.rating = None
     dialogue.tags = []
     dialogue.json = json
+    if not dialogue.short:
+      h = randomHash(URL_HASH_SIZE)
+      while Dialogue.gql("WHERE short = :1", h).get() is not None :
+        h = randomHash(URL_HASH_SIZE)
+      dialogue.short = h
 
     # a transaction that: 
     # 1- increments the quotes_created counter for the quoteURLUser
@@ -323,13 +336,42 @@ class CreateQuote(webapp.RequestHandler):
     else:
       db.run_in_transaction(save_dialogue)
     
+    # display success page
     template_values = {
+      'short'     : dialogue.short,
+      'app_url'   : os.environ['HTTP_HOST'],
       'tweets'    : tweets
     }
     path = os.path.join(os.path.dirname(__file__), 'templates/show.html')
     self.response.out.write(template.render(path, template_values))
     return True
 
+class ShowQuote(webapp.RequestHandler):
+  def get(self, short, rubish):
+    if rubish:
+      self.redirect('/'+short)
+      return False
+    dialogue = Dialogue.gql("WHERE short = :1", short).get()
+    if not dialogue:
+      path = os.path.join(os.path.dirname(__file__), 'templates/error_quote_not_found.html')
+      self.response.set_status(404)
+      self.response.out.write(template.render(path, {}))
+      return False
+    tweets = simplejson.loads(dialogue.json)
+    template_values = {
+      'tweets'    : tweets
+    }
+    path = os.path.join(os.path.dirname(__file__), 'templates/show.html')
+    self.response.out.write(template.render(path, template_values))
+    return True
+    
+
+class Test(webapp.RequestHandler):
+  def get(self):
+    c = "abcdefghijklmnopqrstuvxywz0123456789"
+    l, key = len(c) , ''
+    while len(key) < 5: key += c[randrange(0,l)]
+    self.response.out.write(key)
     
 class SignIn(webapp.RequestHandler):
   def get(self):
@@ -347,11 +389,12 @@ class UpgradeMembership(webapp.RequestHandler):
 def main():
   application = webapp.WSGIApplication(
   [
-    ('/', MainPage),
-    ('/a/login', SignIn),
-    ('/a/upgrade', UpgradeMembership),
-    ('/a/loadtweet', LoadTweet),
-    ('/a/create', CreateQuote)
+    ('/'                  , MainPage),
+    ('/a/login'           , SignIn),
+    ('/a/upgrade'         , UpgradeMembership),
+    ('/a/loadtweet'       , LoadTweet),
+    ('/a/create'          , CreateQuote),
+    ('/(.[a-z0-9]+)(.*)'  , ShowQuote)
   ], debug=True)
   wsgiref.handlers.CGIHandler().run(application)
 
