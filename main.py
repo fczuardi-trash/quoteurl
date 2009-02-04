@@ -225,6 +225,7 @@ class CreateQuote(webapp.RequestHandler):
     ua              = os.environ['HTTP_USER_AGENT']
     tweets_to_put   = []
     users_to_put    = []
+    tweets          = []
     remaining_authors = list(sets.Set(author_id_list[:]))
     
     # logged user or anonymous?
@@ -270,6 +271,7 @@ class CreateQuote(webapp.RequestHandler):
       tweet = Tweet.get_or_insert(key_name='Tweet:'+str(loaded_tweet['id']))
       updateTweetAttributes(tweet, loaded_tweet)
       tweets_to_put.append(tweet)
+      tweets.append(loaded_tweet)
       
       # check if the user has been included already in the "list of users to put"
       if  tweet.author_id in remaining_authors:
@@ -322,9 +324,7 @@ class CreateQuote(webapp.RequestHandler):
       db.run_in_transaction(save_dialogue)
     
     template_values = {
-      'tweets_to_put' : tweets_to_put,
-      'users_to_put'  : users_to_put,
-      'dialogue'      : dialogue
+      'tweets'    : tweets
     }
     path = os.path.join(os.path.dirname(__file__), 'templates/show.html')
     self.response.out.write(template.render(path, template_values))
