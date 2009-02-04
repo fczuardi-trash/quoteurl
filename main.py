@@ -228,7 +228,6 @@ class CreateQuote(webapp.RequestHandler):
     status_list     = cgi.escape(self.request.get('statuses')).replace(',',' ').split()
     author_list     = cgi.escape(self.request.get('authors')).replace(',',' ').split()
     author_id_list  = cgi.escape(self.request.get('author_ids')).replace(',',' ').split()
-    json            = cgi.escape(self.request.get('json'))
     user            = users.get_current_user()
     ip              = os.environ['REMOTE_ADDR']
     ua              = os.environ['HTTP_USER_AGENT']
@@ -280,8 +279,6 @@ class CreateQuote(webapp.RequestHandler):
       tweet = Tweet.get_or_insert(key_name='Tweet:'+str(loaded_tweet['id']))
       updateTweetAttributes(tweet, loaded_tweet)
       tweets_to_put.append(tweet)
-      #fix date format
-      loaded_tweet['created_at'] = datetime.datetime.strptime(loaded_tweet['created_at'], "%a %b %d %H:%M:%S +0000 %Y")
       tweets.append(loaded_tweet)
       
       # check if the user has been included already in the "list of users to put"
@@ -320,7 +317,7 @@ class CreateQuote(webapp.RequestHandler):
     dialogue.author_id_list = author_id_list
     dialogue.rating = None
     dialogue.tags = []
-    dialogue.json = json
+    dialogue.json = simplejson.dumps(tweets)
     if not dialogue.short:
       h = randomHash(URL_HASH_SIZE)
       while Dialogue.gql("WHERE short = :1", h).get() is not None :
@@ -342,6 +339,10 @@ class CreateQuote(webapp.RequestHandler):
 
     app_url = os.environ['HTTP_HOST']
     page_url = 'http://'+app_url+'/'+dialogue.short
+
+    for tweet in tweets:
+      tweet['created_at'] = datetime.datetime.strptime(tweet['created_at'], "%a %b %d %H:%M:%S +0000 %Y")
+      tweet['source'] = unescape(tweet['source'])
     
     # display success page
     template_values = {

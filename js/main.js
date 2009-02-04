@@ -140,7 +140,6 @@ function updateForm(){
     var statuses = []
     var authors = []
     var author_ids = []
-    var json_list = []
     var tweet_id = ''
     var tweets = $$('li')
     for (var i=0; i<tweets.length; i++){
@@ -148,14 +147,12 @@ function updateForm(){
         statuses.push(tweet_id)
         authors.push(tweetlist[tweet_id].user.screen_name)
         author_ids.push(tweetlist[tweet_id].user.id)
-        json_list.push(tweetlist[tweet_id])
     }
     $('form-statuses').set('value', statuses.join(' '))
     $('form-authors').set('value', authors.join(' '))
     console.log('updateForm')
     console.log( author_ids.join(' '))
     $('form-author-ids').set('value', author_ids.join(' '))
-    $('form-json').set('value', JSON.encode(json_list))
 }
 
 /** Compare 2 tweets and return true if tweet a comes before b in the current ordering (timestamp-based) **/
