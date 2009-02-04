@@ -38,6 +38,7 @@ import cgi
 import wsgiref.handlers
 import urllib
 import sets
+import time
 
 from google.appengine.api import users
 from google.appengine.ext import db
@@ -46,7 +47,7 @@ from google.appengine.api import memcache
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from django.utils import simplejson
-from datetime import datetime
+import datetime
 from random import randrange
 
 
@@ -161,7 +162,7 @@ def updateTwitterUserAttributes(user, dictionary):
   return user
 
 def updateTweetAttributes(tweet, dictionary):
-  tweet.created_at              = datetime.strptime(dictionary['created_at'], "%a %b %d %H:%M:%S +0000 %Y")
+  tweet.created_at              = datetime.datetime.strptime(dictionary['created_at'], "%a %b %d %H:%M:%S +0000 %Y")
   tweet.in_reply_to_screen_name = dictionary['in_reply_to_screen_name']
   tweet.source                  = dictionary['source']
   tweet.text                    = dictionary['text']
@@ -278,6 +279,8 @@ class CreateQuote(webapp.RequestHandler):
       tweet = Tweet.get_or_insert(key_name='Tweet:'+str(loaded_tweet['id']))
       updateTweetAttributes(tweet, loaded_tweet)
       tweets_to_put.append(tweet)
+      #fix date format
+      loaded_tweet['created_at'] = datetime.datetime.strptime(loaded_tweet['created_at'], "%a %b %d %H:%M:%S +0000 %Y")
       tweets.append(loaded_tweet)
       
       # check if the user has been included already in the "list of users to put"
@@ -335,7 +338,7 @@ class CreateQuote(webapp.RequestHandler):
       dialogue.put()
     else:
       db.run_in_transaction(save_dialogue)
-    
+
     # display success page
     template_values = {
       'short'     : dialogue.short,
@@ -358,6 +361,8 @@ class ShowQuote(webapp.RequestHandler):
       self.response.out.write(template.render(path, {}))
       return False
     tweets = simplejson.loads(dialogue.json)
+    for tweet in tweets:
+      tweet['created_at'] = datetime.datetime.strptime(tweet['created_at'], "%a %b %d %H:%M:%S +0000 %Y")
     template_values = {
       'tweets'    : tweets
     }

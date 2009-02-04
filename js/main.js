@@ -39,6 +39,14 @@ var preferences = {
     'order' : 'asc'
 }
 
+//For people without firebug
+if (!console) {
+  var console = {}
+  console.log = function(text){
+    return
+  }
+}
+
 /** Load the contents of the tweet to be added to the preview panel **/
 function loadTweet(){
     //extract id from the input
