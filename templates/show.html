@@ -1,15 +1,21 @@
 <html>
     <head>
         <link href="/skin/default/style.css" type="text/css" media="screen,projection" rel="stylesheet" /> 
+        <script src="/js/mootools-1.2.1-core.js" type="text/javascript"></script>
+        <script src="/js/main.js" type="text/javascript"></script>
     </head>
-    <body>
-        {% if short %}
-        <h1>Great Success! Your QuoteURL is:</h1>
-        <pre>
-            <a href="http://{{app_url}}/{{short}}">http://{{app_url}}/{{short}}</a>
-        </pre>
-        {% endif %}
-        <div class="step s2 center">
+    <body{% if short %} onload="warnUser('Great Success! Your QuoteURL is ready!','WIN',3000);"{% endif %}>
+        <div class="header c2 center">
+            <h1>QuoteURL (alpha… way, waay ALPHA)</h1>
+            <div>
+                <label><a href="{{page_url}}">URL</a>: <input type="text" value="{{page_url}}" id="quoteURL-field" /></label>
+                <label>Embed: <input type="text" value="" id="quoteURL-embed-field" /></label>
+            </div>
+        </div>
+        <div id="feedback">
+            <p id="feedback-message"></p>
+        </div>
+        <div class="quote-container c2 center">
         <ol id="quote">
         {% for tweet in tweets %}
         <li class="hentry status u-{{tweet.user.screen_name}}">
@@ -29,6 +35,7 @@
                     <span title="{{tweet.created_at}}" class="published">{{tweet.created_at|timesince}} ago</span></a> <span>from {{tweet.source}}</span>
                 </span>
             </div>
+            <div class="actions"></div>
         </li>
         {% endfor %}
         </ol>

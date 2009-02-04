@@ -4,6 +4,17 @@ body{
     background-color: #ccc;
 }
 
+/*--- HEADER ---*/
+.header{
+}
+#quoteURL-field{
+}
+input[type='text']{
+    width:22em;
+}
+label{
+    margin-right:2em;
+}
 /*--- FEEDBACK MESSAGES --*/
 #feedback{
     width:90%;
@@ -22,11 +33,13 @@ body{
     border-color:#c33;
     color:#c33;
     background-color:#fee;
+    visibility:visible;
 }
 #feedback.WIN{
     border-color:#3c3;
     color:#3c3;
     background-color:#efe;
+    visibility:visible;
 }
 
 /*---CONTENT -------*/
@@ -42,8 +55,8 @@ body{
     overflow:hidden;
 }
 
-/*------ STEP 1 -------*/
-.step.s1{
+/*------ COLUMN 1 -------*/
+.c1{
     width:27%;
 }
 #quote-size-limit{
@@ -51,9 +64,16 @@ body{
     font-weight:bold;
 }
 
-/*------ STEP 2 -------*/
-.step.s2{
+/*------ COLUMN 2 -------*/
+.c2{
     width:47%;
+}
+.quote-container{
+    display:block;
+    border:5px solid #fff;
+    top:3em;
+    position:relative;
+    background-color: #eee;
 }
 #quote{
     padding-left:0px;
@@ -101,6 +121,7 @@ a.author{
     left:100%;
     margin-left:-30px;
     width:30px;
+    clear:both;
 }
 .del{
     color:#fff;
@@ -126,13 +147,15 @@ li:hover .del{
     outline:1px inset;
     font-size:12px;
 }
-
+.status{
+    clear:both;
+}
 .center{
     margin:auto;
     float:none;
 }
-/*------ STEP 3 -------*/
-.step.s3{
+/*------ COLUMN 3 -------*/
+.c3{
     width:16%;
 }
 .huge-button{

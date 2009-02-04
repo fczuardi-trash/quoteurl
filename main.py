@@ -340,10 +340,14 @@ class CreateQuote(webapp.RequestHandler):
     else:
       db.run_in_transaction(save_dialogue)
 
+    app_url = os.environ['HTTP_HOST']
+    page_url = 'http://'+app_url+'/'+dialogue.short
+    
     # display success page
     template_values = {
       'short'     : dialogue.short,
-      'app_url'   : os.environ['HTTP_HOST'],
+      'app_url'   : app_url,
+      'page_url'  : page_url,
       'tweets'    : tweets
     }
     path = os.path.join(os.path.dirname(__file__), 'templates/show.html')
@@ -355,7 +359,9 @@ class ShowQuote(webapp.RequestHandler):
     if rubish:
       self.redirect('/'+short)
       return False
-    dialogue = Dialogue.gql("WHERE short = :1", short).get()
+    app_url   = os.environ['HTTP_HOST']
+    page_url  = 'http://'+app_url+'/'+short
+    dialogue  = Dialogue.gql("WHERE short = :1", short).get()
     if not dialogue:
       path = os.path.join(os.path.dirname(__file__), 'templates/error_quote_not_found.html')
       self.response.set_status(404)
@@ -366,6 +372,8 @@ class ShowQuote(webapp.RequestHandler):
       tweet['created_at'] = datetime.datetime.strptime(tweet['created_at'], "%a %b %d %H:%M:%S +0000 %Y")
       tweet['source'] = unescape(tweet['source'])
     template_values = {
+      'app_url'   : app_url,
+      'page_url'  : page_url,
       'tweets'    : tweets
     }
     path = os.path.join(os.path.dirname(__file__), 'templates/show.html')

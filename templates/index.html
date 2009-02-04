@@ -17,7 +17,7 @@
             <p id="feedback-message"></p>
         </div>
         <div class="content">
-            <div class="step s1">
+            <div class="step c1">
                 <h3>Step 1 - Build your quote.</h3>
                 <p>{{msg_help1}}</p>
                 <form action="/" onsubmit="return loadTweet();">
@@ -25,13 +25,13 @@
                     <input type="submit" name="tweet" value="+" id="add-tweet-button" onclick="return loadTweet();" />
                 </form>
             </div>
-            <div class="step s2">
+            <div class="step c2">
                 <h3>Step 2 - Preview and tweak</h3>
                 <p></p>
                 <ol id="quote">
                 </ol>
             </div>
-            <div class="step s3">
+            <div class="step c3">
                 <h3>Step 3</h3>
                 <form action="a/create" method="post" onsubmit="return createQuote();">
                     <input type="hidden" name="statuses" id="form-statuses" value="" />
