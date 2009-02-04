@@ -123,8 +123,31 @@ function addTweetToPreview(tweet){
             }
         }
     }
+    updateForm()
     newTweet.set('tween', {duration: 'long'});
     newTweet.tween('left', '0%');
+}
+
+function updateForm(){
+    var statuses = []
+    var authors = []
+    var author_ids = []
+    var json_list = []
+    var tweet_id = ''
+    var tweets = $$('li')
+    for (var i=0; i<tweets.length; i++){
+        tweet_id = tweets[i].id.substring('status_'.length, tweets[i].id.length)
+        statuses.push(tweet_id)
+        authors.push(tweetlist[tweet_id].user.screen_name)
+        author_ids.push(tweetlist[tweet_id].user.id)
+        json_list.push(tweetlist[tweet_id])
+    }
+    $('form-statuses').set('value', statuses.join(' '))
+    $('form-authors').set('value', authors.join(' '))
+    console.log('updateForm')
+    console.log( author_ids.join(' '))
+    $('form-author-ids').set('value', author_ids.join(' '))
+    $('form-json').set('value', JSON.encode(json_list))
 }
 
 /** Compare 2 tweets and return true if tweet a comes before b in the current ordering (timestamp-based) **/
@@ -141,12 +164,13 @@ function removeTweet(del_button){
     var tweet_id = del_button.id.substring('del_'.length, del_button.id.length)
     delete tweetlist[tweet_id]
     $('status_'+tweet_id).dispose()
+    updateForm()
     return false
 }
 
 /** Validate and sends necessary data to create the new quote page **/
 function createQuote(){
-    return false
+    return true
 }
 
 //--- Errors and Warnings ---

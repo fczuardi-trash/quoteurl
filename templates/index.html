@@ -34,6 +34,10 @@
             <div class="step s3">
                 <h3>Step 3</h3>
                 <form action="a/create" method="post" onsubmit="return createQuote();">
+                    <input type="hidden" name="statuses" id="form-statuses" value="" />
+                    <input type="hidden" name="authors" id="form-authors" value="" />
+                    <input type="hidden" name="author_ids" id="form-author-ids" value="" />
+                    <input type="hidden" name="json" id="form-json" value="" />
                     <input type="submit" class="huge-button" value="Generate Quote URL!" />
                 </form>
                 <!-- <form action="/a/create" method="post">
