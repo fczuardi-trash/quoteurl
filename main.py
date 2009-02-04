@@ -399,6 +399,10 @@ class UpgradeMembership(webapp.RequestHandler):
     path = os.path.join(os.path.dirname(__file__), 'templates/upgrade.html')
     self.response.out.write(template.render(path, template_values))
 
+class Boo(webapp.RequestHandler):
+  def get(self):
+    self.response.out.write('boo!')
+
 
 #--- MAPPINGS ---
 def main():
@@ -409,6 +413,7 @@ def main():
     ('/a/upgrade'         , UpgradeMembership),
     ('/a/loadtweet'       , LoadTweet),
     ('/a/create'          , CreateQuote),
+    ('/favicon'           , Boo),
     ('/(.[a-z0-9]+)(.*)'  , ShowQuote)
   ], debug=True)
   wsgiref.handlers.CGIHandler().run(application)
