@@ -85,7 +85,7 @@ class Tweet(db.Model):
   numeric_in_reply_to_status_id = db.IntegerProperty()
   in_reply_to_user_id           = db.StringProperty()
   source                        = db.StringProperty()
-  text                          = db.StringProperty()
+  text                          = db.StringProperty(multiline=True)
   truncated                     = db.BooleanProperty()
   author_screen_name            = db.StringProperty()
   author_id                     = db.StringProperty()

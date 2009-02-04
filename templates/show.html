@@ -20,7 +20,7 @@
             </span>
             <span class="meta entry-meta">
                 <a rel="bookmark" class="entry-date" href="http://twitter.com/{{tweet.user.screen_name}}/status/{{tweet.id}}">
-                <span title="{{tweet.created_at}}" class="published">'+humantime+'</span></a> <span>from {{tweet.source}}</span>
+                <span title="{{tweet.created_at}}" class="published">{{tweet.created_at}}</span></a> <span>from {{tweet.source}}</span>
             </span>
         </div>
         {% endfor %}
