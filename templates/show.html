@@ -1,4 +1,7 @@
 <html>
+    <head>
+        <link href="/skin/default/style.css" type="text/css" media="screen,projection" rel="stylesheet" /> 
+    </head>
     <body>
         {% if short %}
         <h1>Great Success! Your QuoteURL is:</h1>
@@ -6,23 +9,29 @@
             <a href="http://{{app_url}}/{{short}}">http://{{app_url}}/{{short}}</a>
         </pre>
         {% endif %}
+        <div class="step s2 center">
+        <ol id="quote">
         {% for tweet in tweets %}
-        <div class="thumb vcard author">
-            <a class="url" href="http://twitter.com/{{tweet.user.screen_name}}">
-                <img width="48" height="48" src="{{tweet.user.profile_image_url}}" class="photo fn" alt="{{tweet.user.name}}"/>
-            </a>
-        </div>
-        <div class="status-body">
-            <a class="author" title="{{tweet.user.name}}" href="http://twitter.com/{{tweet.user.screen_name}}">{{tweet.user.screen_name}}</a>
-            <span class="entry-content">
-                {{tweet.text}}
-                <!-- '+twitter_at_linkify(linkify(tweet.text)) -->
-            </span>
-            <span class="meta entry-meta">
-                <a rel="bookmark" class="entry-date" href="http://twitter.com/{{tweet.user.screen_name}}/status/{{tweet.id}}">
-                <span title="{{tweet.created_at}}" class="published">{{tweet.created_at|timesince}} ago</span></a> <span>from {{tweet.source}}</span>
-            </span>
-        </div>
+        <li class="hentry status u-{{tweet.user.screen_name}}">
+            <div class="thumb vcard author">
+                <a class="url" href="http://twitter.com/{{tweet.user.screen_name}}">
+                    <img width="48" height="48" src="{{tweet.user.profile_image_url}}" class="photo fn" alt="{{tweet.user.name}}"/>
+                </a>
+            </div>
+            <div class="status-body">
+                <a class="author" title="{{tweet.user.name}}" href="http://twitter.com/{{tweet.user.screen_name}}">{{tweet.user.screen_name}}</a>
+                <span class="entry-content">
+                    {{tweet.text}}
+                    <!-- '+twitter_at_linkify(linkify(tweet.text)) -->
+                </span>
+                <span class="meta entry-meta">
+                    <a rel="bookmark" class="entry-date" href="http://twitter.com/{{tweet.user.screen_name}}/status/{{tweet.id}}">
+                    <span title="{{tweet.created_at}}" class="published">{{tweet.created_at|timesince}} ago</span></a> <span>from {{tweet.source}}</span>
+                </span>
+            </div>
+        </li>
         {% endfor %}
+        </ol>
+        </div>
     </body>
 </html>

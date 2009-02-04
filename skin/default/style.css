@@ -127,6 +127,10 @@ li:hover .del{
     font-size:12px;
 }
 
+.center{
+    margin:auto;
+    float:none;
+}
 /*------ STEP 3 -------*/
 .step.s3{
     width:16%;
