@@ -46,6 +46,7 @@ from google.appengine.api import urlfetch
 from google.appengine.api import memcache
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
+from xml.sax.saxutils import unescape
 from django.utils import simplejson
 import datetime
 from random import randrange
@@ -363,6 +364,7 @@ class ShowQuote(webapp.RequestHandler):
     tweets = simplejson.loads(dialogue.json)
     for tweet in tweets:
       tweet['created_at'] = datetime.datetime.strptime(tweet['created_at'], "%a %b %d %H:%M:%S +0000 %Y")
+      tweet['source'] = unescape(tweet['source'])
     template_values = {
       'tweets'    : tweets
     }
