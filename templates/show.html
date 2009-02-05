@@ -16,29 +16,45 @@
             <p id="feedback-message"></p>
         </div>
         <div class="quote-container c2 center">
-        <ol id="quote">
-        {% for tweet in tweets %}
-        <li class="hentry status u-{{tweet.user.screen_name}}">
-            <div class="thumb vcard author">
-                <a class="url" href="http://twitter.com/{{tweet.user.screen_name}}">
-                    <img width="48" height="48" src="{{tweet.user.profile_image_url}}" class="photo fn" alt="{{tweet.user.name}}"/>
-                </a>
-            </div>
-            <div class="status-body">
-                <a class="author" title="{{tweet.user.name}}" href="http://twitter.com/{{tweet.user.screen_name}}">{{tweet.user.screen_name}}</a>
-                <span class="entry-content">
-                    {{tweet.text}}
-                    <!-- '+twitter_at_linkify(linkify(tweet.text)) -->
-                </span>
-                <span class="meta entry-meta">
-                    <a rel="bookmark" class="entry-date" href="http://twitter.com/{{tweet.user.screen_name}}/status/{{tweet.id}}">
-                    <span title="{{tweet.created_at}}" class="published">{{tweet.created_at|timesince}} ago</span></a> <span>from {{tweet.source}}</span>
-                </span>
-            </div>
-            <div class="actions"></div>
-        </li>
-        {% endfor %}
-        </ol>
+            <ol id="quote">
+            {% for tweet in tweets %}
+            <li class="hentry status u-{{tweet.user.screen_name}}">
+                <div class="thumb vcard author">
+                    <a class="url" href="http://twitter.com/{{tweet.user.screen_name}}">
+                        <img width="48" height="48" src="{{tweet.user.profile_image_url}}" class="photo fn" alt="{{tweet.user.name}}"/>
+                    </a>
+                </div>
+                <div class="status-body">
+                    <a class="author" title="{{tweet.user.name}}" href="http://twitter.com/{{tweet.user.screen_name}}">{{tweet.user.screen_name}}</a>
+                    <span class="entry-content">
+                        {{tweet.text}}
+                        <!-- '+twitter_at_linkify(linkify(tweet.text)) -->
+                    </span>
+                    <span class="meta entry-meta">
+                        <a rel="bookmark" class="entry-date" href="http://twitter.com/{{tweet.user.screen_name}}/status/{{tweet.id}}">
+                        <span title="{{tweet.created_at}}" class="published">{{tweet.created_at|timesince}} ago</span></a> <span>from {{tweet.source}}</span>
+                    </span>
+                </div>
+                <div class="actions"></div>
+            </li>
+            {% endfor %}
+            </ol>
+        </div>
+        <div class="footer">
+            <p>
+                <a href="/">Home</a> |
+                <a href="http://github.com/fczuardi/quoteurl/tree/master">View Source</a> |
+                <a href="http://fczuardi.lighthouseapp.com/projects/24896-quoteurl/tickets">Bugs</a> |
+                <a href="http://pledgie.org/campaigns/2814">Donate</a>
+                <em>
+                    © 2009 <a href="http://fabricio.org">Fabricio Zuardi</a>.
+                    Powered by 
+                    <a href="http://apiwiki.twitter.com/">Twitter API</a>,
+                    <a href="http://appengine.google.com">Google App Engine</a>, 
+                    <a href="http://mootools.net">MooTols</a>, 
+                    <a href="http://github.com">github</a>
+                </em>
+            </p>
         </div>
     </body>
 </html>

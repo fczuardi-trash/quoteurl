@@ -168,5 +168,11 @@ li:hover .del{
 
 .footer{
     clear:both;
-    background-color:#999;
+    font-size:x-small;
+    text-align:center;
+    margin-top:8em;
+}
+.footer em,
+.footer em a{
+    color:#777;
 }
