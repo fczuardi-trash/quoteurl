@@ -5,7 +5,8 @@ body{
 }
 
 /*--- HEADER ---*/
-.header{
+.header a{
+    text-decoration:none;
 }
 #quoteURL-field{
 }
