@@ -337,22 +337,7 @@ class CreateQuote(webapp.RequestHandler):
     else:
       db.run_in_transaction(save_dialogue)
 
-    app_url = os.environ['HTTP_HOST']
-    page_url = 'http://'+app_url+'/'+dialogue.short
-
-    for tweet in tweets:
-      tweet['created_at'] = datetime.datetime.strptime(tweet['created_at'], "%a %b %d %H:%M:%S +0000 %Y")
-      tweet['source'] = unescape(tweet['source'])
-    
-    # display success page
-    template_values = {
-      'short'     : dialogue.short,
-      'app_url'   : app_url,
-      'page_url'  : page_url,
-      'tweets'    : tweets
-    }
-    path = os.path.join(os.path.dirname(__file__), 'templates/show.html')
-    self.response.out.write(template.render(path, template_values))
+    self.redirect('/'+dialogue.short)
     return True
 
 class ShowQuote(webapp.RequestHandler):
@@ -368,14 +353,16 @@ class ShowQuote(webapp.RequestHandler):
       self.response.set_status(404)
       self.response.out.write(template.render(path, {}))
       return False
+    just_created = ((datetime.datetime.now() - dialogue.created_date).seconds < 5)
     tweets = simplejson.loads(dialogue.json)
     for tweet in tweets:
       tweet['created_at'] = datetime.datetime.strptime(tweet['created_at'], "%a %b %d %H:%M:%S +0000 %Y")
       tweet['source'] = unescape(tweet['source'])
     template_values = {
-      'app_url'   : app_url,
-      'page_url'  : page_url,
-      'tweets'    : tweets
+      'just_created'  : just_created,
+      'app_url'       : app_url,
+      'page_url'      : page_url,
+      'tweets'        : tweets
     }
     path = os.path.join(os.path.dirname(__file__), 'templates/show.html')
     self.response.out.write(template.render(path, template_values))
