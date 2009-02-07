@@ -6,7 +6,7 @@
     </head>
     <body{% if just_created %} onload="warnUser('Great Success! Your QuoteURL is ready!','WIN',3000);"{% endif %}>
         <div id="header">
-            <h1>QuoteURL <em>(for <a href="http://twitter.com/home" title="Split Screen!" onclick="return splitScreen();">Twitter</a>!)</em></h1>
+            <h1><a href="/" title="Home">QuoteURL</a> <em>(for <a href="http://twitter.com/home" title="Split Screen!" onclick="return splitScreen();">Twitter</a>!)</em></h1>
         </div>
         <div id="feedback">
             <p id="feedback-message"></p>
@@ -50,7 +50,8 @@
 .quoteurl-quote .entry-meta a:hover{color:none;text-decoration:underline;}
 .quoteurl-quote .status-body{margin-right:30px;padding-right:1em;}
 .quoteurl-quote .hentry .actions{position:relative;clear:both;}
-.quoteurl-cite{float:right;}</style>
+.quoteurl-cite{float:right;}
+.quoteurl-end{clear:both;}</style>
 <blockquote class="quoteurl-block">
 <ol class="quoteurl-quote">{% for tweet in tweets %}
   <li class="hentry status u-{{tweet.user.screen_name}}">
@@ -64,6 +65,7 @@
   </li>{% endfor %}
 </ol>
 </blockquote><cite class="quoteurl-cite"><small> -- <a href="{{page_url}}">this quote</a> was brought to you by <a href="http://www.quoteurl.com">quoteurl</a></small></cite>
+<br class="quoteurl-end"/>
 <!-- QuoteURL embed end --></textarea>
                     </label>
                 </div>

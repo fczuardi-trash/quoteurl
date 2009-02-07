@@ -37,9 +37,14 @@ body{
 #header h1 em a:visited{
     text-decoration:underline;
     color:#fff;
+    vertical-align:top;
 }
 #header a{
     text-decoration:none;
+    color:#fff;
+}
+#header a:hover{
+    text-decoration:underline;
 }
 #demo-button{
     display:inline-table;
