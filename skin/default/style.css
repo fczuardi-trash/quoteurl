@@ -30,14 +30,19 @@ body{
     margin-bottom:.7em;
 }
 #header h1 em{
-    font-size:.6em;
-    vertical-align:top;
+    font-size:.4em;
+    vertical-align:middle;
 }
 #header h1 em a,
 #header h1 em a:visited{
     text-decoration:underline;
     color:#fff;
-    vertical-align:top;
+    vertical-align: middle;
+    margin-left: 0.2em;
+}
+#header h1 em a img{
+    border:none;
+    margin-top: 1em;
 }
 #header a{
     text-decoration:none;
@@ -283,4 +288,7 @@ li:hover .del{
 .footer em,
 .footer em a{
     color:#777;
+}
+.footer p{
+    margin-bottom:1em;
 }

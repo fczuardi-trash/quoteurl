@@ -52,7 +52,7 @@ function loadTweet(){
     //extract id from the input
     var statusId = $('status-id-field').get('value').replace(/(http:\/\/twitter.com\/.*\/status\/)?([^\/|\?|#]*).*/ig,'$2')
     //warn the user if her limit exceeded
-    if ($$('li').length >= $('quote-size-limit').get('text')) return limitExceeded()
+    if ($$('li').length >= parseInt($('quote-size-limit').get('text'))+1) return limitExceeded()
     //warn the user if the tweet is already listed
     if (tweetlist[statusId] != undefined) return dupeTweet()
     //disable add button
