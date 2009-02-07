@@ -5,41 +5,68 @@
         <script src="/js/main.js" type="text/javascript"></script>
     </head>
     <body{% if just_created %} onload="warnUser('Great Success! Your QuoteURL is ready!','WIN',3000);"{% endif %}>
-        <div class="header c2 center">
-            <h1><a href="/">QuoteURL</a> (alpha… way, waay ALPHA)</h1>
-            <div>
-                <label><a href="{{page_url}}">URL</a>: <input type="text" value="{{page_url}}" id="quoteURL-field" /></label>
-                <label>Embed: <input type="text" value="" id="quoteURL-embed-field" /></label>
-            </div>
+        <div id="header">
+            <h1>QuoteURL <em>(for <a href="http://twitter.com/home" title="Split Screen!" onclick="return splitScreen();">Twitter</a>!)</em></h1>
         </div>
         <div id="feedback">
             <p id="feedback-message"></p>
         </div>
-        <div class="quote-container c2 center">
-            <ol id="quote">
-            {% for tweet in tweets %}
-            <li class="hentry status u-{{tweet.user.screen_name}}">
-                <div class="thumb vcard author">
-                    <a class="url" href="http://twitter.com/{{tweet.user.screen_name}}">
-                        <img width="48" height="48" src="{{tweet.user.profile_image_url}}" class="photo fn" alt="{{tweet.user.name}}"/>
-                    </a>
+                <ol class="quoteurl-quote published">
+                {% for tweet in tweets %}
+                <li class="hentry status u-{{tweet.user.screen_name}}">
+                    <div class="thumb vcard author">
+                        <a class="url" href="http://twitter.com/{{tweet.user.screen_name}}">
+                            <img width="48" height="48" src="{{tweet.user.profile_image_url}}" class="photo fn" alt="{{tweet.user.name}}"/>
+                        </a>
+                    </div>
+                    <div class="status-body">
+                        <a class="author" title="{{tweet.user.name}}" href="http://twitter.com/{{tweet.user.screen_name}}">{{tweet.user.screen_name}}</a>
+                        <span class="entry-content">
+                            {{tweet.text}}
+                            <!-- '+twitter_at_linkify(linkify(tweet.text)) -->
+                        </span>
+                        <span class="meta entry-meta">
+                            <a rel="bookmark" class="entry-date" href="http://twitter.com/{{tweet.user.screen_name}}/status/{{tweet.id}}">
+                            <span title="{{tweet.created_at}}" class="published">{{tweet.created_at|timesince}} ago</span></a> <span>from {{tweet.source}}</span>
+                        </span>
+                    </div>
+                    <div class="actions"></div>
+                </li>
+                {% endfor %}
+                </ol>
+                <div id="share" class="published">
+                    <label><a href="{{page_url}}">URL</a>: <input type="text"class="text-entry" value="{{page_url}}" id="quoteURL-field" onclick="return selectField(this);" readonly="" /></label>
+                    <label>Embed: 
+                        <textarea class="text-entry" id="quoteURL-embed-field" onclick="return selectField(this);" readonly="" ><!-- QuoteURL embed start -->
+<style>/*--- QuoteURL Stylesheet (http://quoteurl.com)---*/
+.quoteurl-block{margin:0;padding:0;}
+.quoteurl-quote{background-color:#fff;padding:.4em;border:1px solid #888;-moz-border-radius: .5em;border-radius: .5em;width:90%;max-width:700px;margin:auto;}
+.quoteurl-quote .hentry{clear:both;list-style:none;padding-top:.7em;padding-bottom:.7em;border-top:1px dashed #ccc;position:relative;background-color:#fff;}
+.quoteurl-quote .thumb.vcard{float:left;margin-right:1em;margin-left:.5em;}
+.quoteurl-quote .thumb img{border:none;}
+.quoteurl-quote a.author{font-weight:bold;}
+.quoteurl-quote .entry-meta{color:#888;font-family:georgia;font-size:0.8em;font-style:italic;}
+.quoteurl-quote .entry-meta a{color:#888;text-decoration:none;}
+.quoteurl-quote .entry-meta a:hover{color:none;text-decoration:underline;}
+.quoteurl-quote .status-body{margin-right:30px;padding-right:1em;}
+.quoteurl-quote .hentry .actions{position:relative;clear:both;}
+.quoteurl-cite{float:right;}</style>
+<blockquote class="quoteurl-block">
+<ol class="quoteurl-quote">{% for tweet in tweets %}
+  <li class="hentry status u-{{tweet.user.screen_name}}">
+    <div class="thumb vcard author"><a class="url" href="http://twitter.com/{{tweet.user.screen_name}}"><img width="48" height="48" src="{{tweet.user.profile_image_url}}" class="photo fn" alt="{{tweet.user.name}}"/></a></div>
+    <div class="status-body">
+      <a class="author" title="{{tweet.user.name}}" href="http://twitter.com/{{tweet.user.screen_name}}">{{tweet.user.screen_name}}</a>
+      <span class="entry-content">{{tweet.text}}</span>
+      <span class="meta entry-meta"><a rel="bookmark" class="entry-date" href="http://twitter.com/{{tweet.user.screen_name}}/status/{{tweet.id}}"><span title="{{tweet.created_at}}" class="published">{{tweet.created_at|timesince}} ago</span></a> <span>from {{tweet.source}}</span></span>
+    </div>
+    <div class="actions"></div>
+  </li>{% endfor %}
+</ol>
+</blockquote><cite class="quoteurl-cite"><small> -- <a href="{{page_url}}">this quote</a> was brought to you by <a href="http://www.quoteurl.com">quoteurl</a></small></cite>
+<!-- QuoteURL embed end --></textarea>
+                    </label>
                 </div>
-                <div class="status-body">
-                    <a class="author" title="{{tweet.user.name}}" href="http://twitter.com/{{tweet.user.screen_name}}">{{tweet.user.screen_name}}</a>
-                    <span class="entry-content">
-                        {{tweet.text}}
-                        <!-- '+twitter_at_linkify(linkify(tweet.text)) -->
-                    </span>
-                    <span class="meta entry-meta">
-                        <a rel="bookmark" class="entry-date" href="http://twitter.com/{{tweet.user.screen_name}}/status/{{tweet.id}}">
-                        <span title="{{tweet.created_at}}" class="published">{{tweet.created_at|timesince}} ago</span></a> <span>from {{tweet.source}}</span>
-                    </span>
-                </div>
-                <div class="actions"></div>
-            </li>
-            {% endfor %}
-            </ol>
-        </div>
         <div class="footer">
             <p>
                 <a href="/">Home</a> |

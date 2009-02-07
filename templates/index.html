@@ -5,7 +5,7 @@
         <link href="/skin/default/style.css" type="text/css" media="screen,projection" rel="stylesheet" /> 
         <title>QuoteURL - Share Twitter Conversations</title>
     </head>
-    <body>
+    <body onload="$('status-id-field').focus()">
         <div id="main-container">
             <div id="header">
                 <h1>QuoteURL <em>(for <a href="http://twitter.com/home" title="Split Screen!" onclick="return splitScreen();">Twitter</a>!)</em></h1>
@@ -22,7 +22,8 @@
                 <div class="step c1">
                     <h3>Add tweets</h3>
                     <form action="/" onsubmit="return loadTweet();">
-                        <label>Enter an individual <b>Twitter status URL</b> or ID here <small>(example: http://twitter.com/fczuardi/status/<b>1177112049</b>)</small> <input type="text" id="status-id-field" value="" /></label>
+                        <label>Enter an individual <b>Twitter status URL</b> or ID here <small>(example: http://twitter.com/fczuardi/status/<b>1186152779</b>)</small>
+                            <input type="text" id="status-id-field" value="" /></label>
                         <input type="submit" name="tweet" value="+" id="add-tweet-button" onclick="return loadTweet();" />
                     </form>
                     <p class="help">{{msg_help1}}</p>

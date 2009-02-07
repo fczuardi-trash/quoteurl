@@ -16,6 +16,7 @@ body{
 }
 #twitter-container{
     width: 1%; height: 100%; float: right;
+    visibility:hidden;
 }
 
 
@@ -26,6 +27,7 @@ body{
 }
 #header h1{
     color:white;
+    margin-bottom:.7em;
 }
 #header h1 em{
     font-size:.6em;
@@ -57,14 +59,6 @@ body{
     margin-bottom:2em;
     -moz-border-radius: .5em;
     border-radius: .5em;
-}
-#quoteURL-field{
-}
-input[type='text']{
-    width:22em;
-}
-label{
-/*    margin-right:2em;*/
 }
 /*--- FEEDBACK MESSAGES --*/
 #feedback{
@@ -120,31 +114,59 @@ h3{
     font-weight:bold;
 }
 #status-id-field{
-    font-size:2em;
+    font-size:1.5em;
     width:80%;
 }
 #add-tweet-button{
-    font-size:2em;
+    font-size:1.5em;
 }
 .help{
     font-size:small;
     color:#888;
 }
 /*------ STEP 2 -------*/
-.quote-container{
-    display:block;
-    border:5px solid #fff;
-    top:3em;
-    position:relative;
-    background-color: #eee;
-}
-#quote{
+.quoteurl-quote{
     padding-left:0px;
     padding:.6em;
     background-color:#ccc;
     border:1px solid #888;
     -moz-border-radius: .5em;
     border-radius: .5em;
+}
+.published,
+.quoteurl-quote.published{
+    background-color:#fff;
+    padding:.4em;
+    border:none;
+    width:80%;
+    max-width:700px;
+    margin:auto;
+    margin-top:2em;
+}
+#share{
+    background-color:#AFEFF1;
+    text-align:center;
+    -moz-border-radius: .5em;
+    border-radius: .5em;
+    color: #fff;
+}
+#share a,
+#share a:visited{
+    color: #fff;
+}
+.text-entry{
+    width:20em;
+    font-family:monospace, courier;
+    height:1.2em;
+    font-size:.8em;
+    white-space:nowrap;
+    border:1px solid #999;
+    vertical-align:middle;
+}
+#quoteURL-field{
+}
+#share textarea{
+    overflow:hidden;
 }
 #dummy-tweet{
     color:#888;
@@ -239,10 +261,9 @@ li:hover .del{
     text-align:right;
 }
 .huge-button{
-    font-size:3em;
+    font-size:2em;
 }
 .huge-button.disabled{
-    font-size:3em;
     color:#ccc;
 }
 

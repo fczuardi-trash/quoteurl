@@ -1,46 +1,52 @@
 <html>
     <body>
-        <p>
-            You submitted:
-        </p>
-        <h2>Tweets</h2>
-        <p>{{user_keys}}</p>
-        <p>{{tweet_keys}}</p>
-        {% for tweet in tweets_to_put %}
-            <ul>
-                <li>{{tweet.tweet_id}}</li>
-                <li>{{tweet.numeric_tweet_id}}</li>
-                <li>{{tweet.created_at}}</li>
-                <li>{{tweet.favorited}}</li>
-                <li>{{tweet.in_reply_to_screen_name}}</li>
-                <li>{{tweet.in_reply_to_status_id}}</li>
-                <li>{{tweet.numeric_in_reply_to_status_id}}</li>
-                <li>{{tweet.in_reply_to_user_id}}</li>
-                <li>{{tweet.source|escape}}</li>
-                <li>{{tweet.text}}</li>
-                <li>{{tweet.truncated}}</li>
-                <li>{{tweet.json|escape}}</li>
-                <li>{{tweet.author_screen_name}}</li>
-                <li>{{tweet.author_id}}</li>
-            </ul>
-            <hr />
-        {% endfor %}
-        <h2>Authors</h2>
-        {% for twitter_user in users_to_put %}
-            <ul>
-                <li>{{twitter_user.description}}</li>
-                <li>{{twitter_user.followers_count}}</li>
-                <li>{{twitter_user.user_id}}</li>
-                <li>{{twitter_user.numericuser_id}}</li>
-                <li>{{twitter_user.location}}</li>
-                <li>{{twitter_user.name}}</li>
-                <li>{{twitter_user.profile_image_url}}</li>
-                <li>{{twitter_user.protected}}</li>
-                <li>{{twitter_user.screen_name}}</li>
-                <li>{{twitter_user.url}}</li>
-                <li>{{twitter_user.json|escape}}</li>
-            </ul>
-            <hr />
-        {% endfor %}
+<!-- QuoteURL embed start -->
+<style>
+/*--- QuoteURL Stylesheet (http://quoteurl.com)---*/
+.quoteurl-quote{background-color:#fff;padding:.4em;border:1px solid #888;-moz-border-radius: .5em;border-radius: .5em;width:90%;max-width:700px;margin:auto;}
+.quoteurl-quote .hentry{clear:both;list-style:none;padding-top:.7em;padding-bottom:.7em;border-top:1px dashed #ccc;position:relative;background-color:#fff;}
+.quoteurl-quote .thumb.vcard{float:left;margin-right:1em;margin-left:.5em;}
+.quoteurl-quote .thumb img{border:none;}
+.quoteurl-quote a.author{font-weight:bold;}
+.quoteurl-quote .entry-meta{color:#888;font-family:georgia;font-size:0.8em;font-style:italic;}
+.quoteurl-quote .entry-meta a{color:#888;text-decoration:none;}
+.quoteurl-quote .entry-meta a:hover{color:none;text-decoration:underline;}
+.quoteurl-quote .status-body{margin-right:30px;padding-right:1em;}
+.quoteurl-quote .hentry .actions{position:relative;clear:both;}
+.quoteurl-cite{float:right;}</style>
+<blockquote class="quoteurl-block">
+<ol class="quoteurl-quote">
+  <li class="hentry status u-LauraGlu">
+    <div class="thumb vcard author"><a class="url" href="http://twitter.com/LauraGlu"><img width="48" height="48" src="http://s3.amazonaws.com/twitter_production/profile_images/70813467/shades_normal.jpg" class="photo fn" alt="Laura Gluhanich"/></a></div>
+    <div class="status-body">
+      <a class="author" title="Laura Gluhanich" href="http://twitter.com/LauraGlu">LauraGlu</a>
+      <span class="entry-content">apparently nobody I follow has tweeted anything in the past 45 minutes.  #twitterFAIL</span>
+      <span class="meta entry-meta"><a rel="bookmark" class="entry-date" href="http://twitter.com/LauraGlu/status/1171561991"><span title="2009-02-03 01:04:05" class="published">4 days, 12 hours ago</span></a> <span>from web</span></span>
+    </div>
+    <div class="actions"></div>
+  </li>
+  <li class="hentry status u-falameufilho">
+    <div class="thumb vcard author"><a class="url" href="http://twitter.com/falameufilho"><img width="48" height="48" src="http://s3.amazonaws.com/twitter_production/profile_images/73020306/saulbass09_normal.jpg" class="photo fn" alt="Bernardo"/></a></div>
+    <div class="status-body">
+      <a class="author" title="Bernardo" href="http://twitter.com/falameufilho">falameufilho</a>
+      <span class="entry-content">mangue = mangrove</span>
+      <span class="meta entry-meta"><a rel="bookmark" class="entry-date" href="http://twitter.com/falameufilho/status/1171920391"><span title="2009-02-03 03:46:45" class="published">4 days, 10 hours ago</span></a> <span>from <a href="http://twitterfon.net/">TwitterFon</a></span></span>
+    </div>
+    <div class="actions"></div>
+  </li>
+  <li class="hentry status u-fczuardi">
+    <div class="thumb vcard author"><a class="url" href="http://twitter.com/fczuardi"><img width="48" height="48" src="http://s3.amazonaws.com/twitter_production/profile_images/17246952/avatar_normal.jpg" class="photo fn" alt="Fabricio Zuardi"/></a></div>
+    <div class="status-body">
+      <a class="author" title="Fabricio Zuardi" href="http://twitter.com/fczuardi">fczuardi</a>
+      <span class="entry-content">You haven't added tweets yet. Go ahead and use the text field above to enter tweet permalinks and build a quote.</span>
+      <span class="meta entry-meta"><a rel="bookmark" class="entry-date" href="http://twitter.com/fczuardi/status/1186152779"><span title="2009-02-07 12:28:28" class="published">1 hour, 22 minutes ago</span></a> <span>from web</span></span>
+    </div>
+    <div class="actions"></div>
+  </li>
+</ol>
+</blockquote><cite class="quoteurl-cite"><small> -- <a href="http://localhost:8087/drl3v">this quote</a> was brought to you by <a href="http://www.quoteurl.com">quoteurl</a></small></cite>
+<!-- QuoteURL embed end -->
+
+                                
     </body>
 </html>

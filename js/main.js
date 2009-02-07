@@ -238,6 +238,11 @@ function onTweetLoadFailure(r){
 
 //--- Utilities ---
 
+function selectField(f){
+    f.focus();
+    f.select();
+    return true
+}
 
 /** Complete date plus hours, minutes and seconds as specified in ISO 8601 **/
 function ISOTime(time){
