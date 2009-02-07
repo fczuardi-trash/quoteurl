@@ -113,7 +113,8 @@ function addTweetToPreview(tweet){
     newTweet.set('html', html)
     //existing tweets in the quote preview
     var quote_tweets = $$('li')
-    if(quote_tweets.length == 0){
+    if(quote_tweets.length == 1){
+        quote_tweets[0].style.display = 'none'
         var container = $('quote')
         newTweet.inject(container)
     } else {
@@ -142,7 +143,7 @@ function updateForm(){
     var author_ids = []
     var tweet_id = ''
     var tweets = $$('li')
-    for (var i=0; i<tweets.length; i++){
+    for (var i=1; i<tweets.length; i++){
         tweet_id = tweets[i].id.substring('status_'.length, tweets[i].id.length)
         statuses.push(tweet_id)
         authors.push(tweetlist[tweet_id].user.screen_name)
@@ -153,6 +154,18 @@ function updateForm(){
     console.log('updateForm')
     console.log( author_ids.join(' '))
     $('form-author-ids').set('value', author_ids.join(' '))
+    updateSaveButton()
+}
+
+function updateSaveButton(){
+    var quote_tweets = $$('li')
+    if (quote_tweets.length < 3){
+        $('save-button').set('disabled', true)
+        $('save-button').addClass('disabled')
+    } else {
+        $('save-button').set('disabled', false)
+        $('save-button').removeClass('disabled')
+    }
 }
 
 /** Compare 2 tweets and return true if tweet a comes before b in the current ordering (timestamp-based) **/
@@ -176,6 +189,10 @@ function removeTweet(del_button){
 /** Validate and sends necessary data to create the new quote page **/
 function createQuote(){
     return true
+}
+
+function splitScreen(){
+    return true;
 }
 
 //--- Errors and Warnings ---

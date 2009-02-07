@@ -3,54 +3,70 @@
         <script src="/js/mootools-1.2.1-core.js" type="text/javascript"></script>
         <script src="/js/main.js" type="text/javascript"></script>
         <link href="/skin/default/style.css" type="text/css" media="screen,projection" rel="stylesheet" /> 
-        <title>QuoteURL - Share Twitter Dialogues</title>
+        <title>QuoteURL - Share Twitter Conversations</title>
     </head>
     <body>
-        <div class="header">
-            <h1>QuoteURL (alpha… way, waay ALPHA)</h1>
-            <h2>Share Twitter Dialogues</h2>
-            <p id="service-description" class="todo">
-                Short description of the service goes here.
-            </p>
-        </div>
-        <div id="feedback">
-            <p id="feedback-message"></p>
-        </div>
-        <div class="content">
-            <div class="step c1">
-                <h3>Step 1 - Build your quote.</h3>
-                <p>{{msg_help1}}</p>
-                <form action="/" onsubmit="return loadTweet();">
-                    <label>Enter an individual Status ID or URL: <input type="text" id="status-id-field" value="" /></label>
-                    <input type="submit" name="tweet" value="+" id="add-tweet-button" onclick="return loadTweet();" />
-                </form>
+        <div id="main-container">
+            <div id="header">
+                <h1>QuoteURL <em>(for <a href="http://twitter.com/home" title="Split Screen!" onclick="return splitScreen();">Twitter</a>!)</em></h1>
+                <p id="service-description" class="todo">
+                    QuoteURL helps you <strong>group different Twitter updates</strong> from
+                    different people <strong>into a single page</strong> that has a <em>permanent URL</em>. 
+                    <!-- <a href="#" id="demo-button">Watch the demo.</a> -->
+                </p>
             </div>
-            <div class="step c2">
-                <h3>Step 2 - Preview and tweak</h3>
-                <p></p>
-                <ol id="quote">
-                </ol>
+            <div id="feedback">
+                <p id="feedback-message"></p>
             </div>
-            <div class="step c3">
-                <h3>Step 3</h3>
-                <form action="a/create" method="post" onsubmit="return createQuote();">
-                    <input type="hidden" name="statuses" id="form-statuses" value="" />
-                    <input type="hidden" name="authors" id="form-authors" value="" />
-                    <input type="hidden" name="author_ids" id="form-author-ids" value="" />
-                    <input type="submit" class="huge-button" value="Generate Quote URL!" />
-                </form>
-                <!-- <form action="/a/create" method="post">
-                <label>Tweets<input type="text" name="statues" /></label>
-                <p class="field-help">Enter a list of the status IDs you want to quote.</p>
-                <ul class="field-examples" id="examples" style="display:none;" >
-                <li>1145408853, 1145501753</li>
-                <li>1140235467-1140275762</li>
-                <li>1140729344-1140809532 marcogomes,fczuardi</li>
-                </ul>
-                <div><input type="submit" value="Quote!"></div>
-                </form> -->
+            <div class="content">
+                <div class="step c1">
+                    <h3>Add tweets</h3>
+                    <form action="/" onsubmit="return loadTweet();">
+                        <label>Enter an individual <b>Twitter status URL</b> or ID here <small>(example: http://twitter.com/fczuardi/status/<b>1177112049</b>)</small> <input type="text" id="status-id-field" value="" /></label>
+                        <input type="submit" name="tweet" value="+" id="add-tweet-button" onclick="return loadTweet();" />
+                    </form>
+                    <p class="help">{{msg_help1}}</p>
+                </div>
+                <div class="step c2">
+                    <h3>Quote Preview</h3>
+                    <p></p>
+                    <ol id="quote">
+                        <li id="dummy-tweet" class="hentry status">
+                            <div class="thumb vcard author">
+                                <img width="48" height="48" src="/skin/default/avatar_bigger.jpg" class="photo fn" alt="placeholder avatar"/>
+                            </div>
+                            <div class="status-body">
+                                <a class="author" title="Fabricio Zuardi" href="http://twitter.com/fczuardi">fczuardi</a>
+                                <span class="entry-content">
+                                    You haven't added tweets yet. Go ahead and use the text field above to enter tweet permalinks and build a quote.
+                                </span>
+                            </div>
+                            <div class="actions"></div>
+                        </li>
+                    </ol>
+                </div>
+                <div class="step c3">
+                    <form action="a/create" method="post" onsubmit="return createQuote();" id="form-submit">
+                        <input type="hidden" name="statuses" id="form-statuses" value="" />
+                        <input type="hidden" name="authors" id="form-authors" value="" />
+                        <input type="hidden" name="author_ids" id="form-author-ids" value="" />
+                        <input type="submit" class="huge-button disabled" id="save-button" value="Save" />
+                    </form>
+                    <!-- <form action="/a/create" method="post">
+                    <label>Tweets<input type="text" name="statues" /></label>
+                    <p class="field-help">Enter a list of the status IDs you want to quote.</p>
+                    <ul class="field-examples" id="examples" style="display:none;" >
+                    <li>1145408853, 1145501753</li>
+                    <li>1140235467-1140275762</li>
+                    <li>1140729344-1140809532 marcogomes,fczuardi</li>
+                    </ul>
+                    <div><input type="submit" value="Quote!"></div>
+                    </form> -->
+                </div>
             </div>
-            <br style="clear:both" />
+        </div> <!-- end main -->
+        <div id="twitter-container">
+            <iframe width="100%" height="100%" id="twitter-iframe"></iframe>
         </div>
         <div class="footer">
             <p>

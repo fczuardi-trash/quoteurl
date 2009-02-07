@@ -1,12 +1,62 @@
 /*---- GENERAL ----*/
+*{
+    margin:0;
+    padding:0;
+}
 body{
     font-family: 'Lucida Grande',sans-serif;
-    background-color: #ccc;
+    background-color: #9AE4E8;
 }
 
+
+/*--- SPLIT MODE ---*/
+#main-container{
+    width:98%;
+    float:left;
+}
+#twitter-container{
+    width: 1%; height: 100%; float: right;
+}
+
+
 /*--- HEADER ---*/
-.header a{
+#header{
+    text-align:center;
+    margin-top:2em;
+}
+#header h1{
+    color:white;
+}
+#header h1 em{
+    font-size:.6em;
+    vertical-align:top;
+}
+#header h1 em a,
+#header h1 em a:visited{
+    text-decoration:underline;
+    color:#fff;
+}
+#header a{
     text-decoration:none;
+}
+#demo-button{
+    display:inline-table;
+    color:white;
+    background-color:#c44;
+    border:1px solid #333;
+    padding:.2em;
+    margin:.2em;
+}
+#service-description{
+    margin:auto;
+    background-color:#fff;
+    padding:1em;
+    width:40%;
+    margin:auto;
+    margin-top:1em;
+    margin-bottom:2em;
+    -moz-border-radius: .5em;
+    border-radius: .5em;
 }
 #quoteURL-field{
 }
@@ -14,20 +64,19 @@ input[type='text']{
     width:22em;
 }
 label{
-    margin-right:2em;
+/*    margin-right:2em;*/
 }
 /*--- FEEDBACK MESSAGES --*/
 #feedback{
-    width:90%;
+    width:101%;
     text-align:center;
     font-size:1em;
+    line-height:2em;
     border: 1px solid;
-    margin:auto;
-    line-height:0;
-    font-size:0.9em;
-    position:relative;
+    margin:0;
+    position:fixed;
+    top:0px;
     z-index:2;
-    margin-top:-2em;
     visibility:hidden;
 }
 #feedback.FAIL{
@@ -45,30 +94,43 @@ label{
 
 /*---CONTENT -------*/
 .content{
-    height:70%;
+    width:70%;
+    background-color:#fff;
+    margin:auto;
+    padding:2em;
+    -moz-border-radius: .5em;
+    border-radius: .5em;
+    padding-bottom:0px;
+    margin-bottom:2em;
+    margin-top:1em;
+}
+h3{
+    font-size:1.7em;
+    margin-bottom:.5em;
+/*    display:none;*/
 }
 .step{
-    float:left;
-    padding:1%;
-    margin:.5%;
-    background-color: #eee;
-    min-height:90%;
     overflow:hidden;
+    padding-bottom:3em;
 }
 
-/*------ COLUMN 1 -------*/
-.c1{
-    width:27%;
-}
+/*------ STEP 1 -------*/
 #quote-size-limit{
     font-style:normal;
     font-weight:bold;
 }
-
-/*------ COLUMN 2 -------*/
-.c2{
-    width:47%;
+#status-id-field{
+    font-size:2em;
+    width:80%;
 }
+#add-tweet-button{
+    font-size:2em;
+}
+.help{
+    font-size:small;
+    color:#888;
+}
+/*------ STEP 2 -------*/
 .quote-container{
     display:block;
     border:5px solid #fff;
@@ -78,14 +140,31 @@ label{
 }
 #quote{
     padding-left:0px;
+    padding:.6em;
+    background-color:#ccc;
+    border:1px solid #888;
+    -moz-border-radius: .5em;
+    border-radius: .5em;
+}
+#dummy-tweet{
+    color:#888;
+    background-color:#fafafa;
+}
+#dummy-tweet a,
+#dummy-tweet a:visited{
+    color:#888 !important;
+}
+#dummy-tweet .thumb.vcard{
+    opacity:.3;
 }
 .hentry{
     clear:both;
     list-style:none;
     padding-top:.7em;
+    padding-bottom:.7em;
     border-top:1px dashed #ccc;
     position:relative;
-    background-color: #eee;
+    background-color:#fbfbfb;
 }
 .thumb.vcard{
     float:left;
@@ -155,14 +234,16 @@ li:hover .del{
     margin:auto;
     float:none;
 }
-/*------ COLUMN 3 -------*/
-.c3{
-    width:16%;
+/*------ STEP 3 -------*/
+#form-submit{
+    text-align:right;
 }
 .huge-button{
-    width:100%;
-    white-space:normal;
-    cursor:pointer;
+    font-size:3em;
+}
+.huge-button.disabled{
+    font-size:3em;
+    color:#ccc;
 }
 
 /*------ FOOTER -------*/
