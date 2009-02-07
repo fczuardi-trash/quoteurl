@@ -50,7 +50,7 @@ if (!console) {
 /** Load the contents of the tweet to be added to the preview panel **/
 function loadTweet(){
     //extract id from the input
-    var statusId = $('status-id-field').get('value').replace(/(http:\/\/.*\.?twitter.com\/.*\/status\/)?([^\/|\?|#|\s]*).*/ig,'$2')
+    var statusId = $('status-id-field').get('value').replace(/(http:\/\/.*\.?twitter.com\/.*\/status(es)?\/)?([^\/|\?|#|\s]*).*/ig,'$3')
     //warn the user if her limit exceeded
     if ($$('li').length >= parseInt($('quote-size-limit').get('text'))+1) return limitExceeded()
     //warn the user if the tweet is already listed
