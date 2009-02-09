@@ -5,14 +5,14 @@
         <script src="/js/mootools-1.2.1-core.js" type="text/javascript"></script>
         <script src="/js/main.js" type="text/javascript"></script>
     </head>
-    <body{% if just_created %} onload="warnUser('Great Success! Your QuoteURL is ready!','WIN',3000);"{% endif %}>
+    <body class="published-quote-page" {% if just_created %} onload="warnUser('Great Success! Your QuoteURL is ready!','WIN',3000);"{% endif %}>
         <div id="header">
             <h1><a href="/">QuoteURL</a> <em>for <a href="http://twitter.com/home" ><img src="/skin/default/twitter_logo_80x18.png" width="80" height="18" alt="twitter logo" title="QuoteURL is not associated with Twitter.com"></a></em></h1>
         </div>
         <div id="feedback">
             <p id="feedback-message"></p>
         </div>
-                <ol class="quoteurl-quote published">
+                <ol class="quoteurl-quote">
                 {% for tweet in tweets %}
                 <li class="hentry status u-{{tweet.user.screen_name}}">
                     <div class="thumb vcard author">
@@ -34,7 +34,7 @@
                 </li>
                 {% endfor %}
                 </ol>
-                <div id="share" class="published">
+                <div id="share">
                     <label><a href="{{page_url}}">URL</a>: <input type="text"class="text-entry" value="{{page_url}}" id="quoteURL-field" onclick="return selectField(this);" readonly="" /></label>
                     <label>Embed: 
                         <textarea class="text-entry" id="quoteURL-embed-field" onclick="return selectField(this);" readonly="" ><!-- QuoteURL embed start -->

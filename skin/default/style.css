@@ -143,9 +143,11 @@ h3{
     -moz-border-radius: .5em;
     border-radius: .5em;
 }
-.published,
-.quoteurl-quote.published{
+.published-quote-page .quoteurl-quote{
     background-color:#fff;
+}
+.published-quote-page .quoteurl-quote,
+.published-quote-page #share{
     padding:.4em;
     border:none;
     width:80%;
