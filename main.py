@@ -51,7 +51,7 @@ from django.utils import simplejson
 import datetime
 from random import randrange
 
-
+webapp.template.register_template_library('customfilters')
 
 #--- CONSTANTS ---
 MAX_QUOTE_SIZE_SIGNED_OUT = 4

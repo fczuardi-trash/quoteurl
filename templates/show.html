@@ -23,8 +23,7 @@
                     <div class="status-body">
                         <a class="author" title="{{tweet.user.name}}" href="http://twitter.com/{{tweet.user.screen_name}}">{{tweet.user.screen_name}}</a>
                         <span class="entry-content">
-                            {{tweet.text}}
-                            <!-- '+twitter_at_linkify(linkify(tweet.text)) -->
+                            {{tweet.text|urlize|twitter_at_linkify}}
                         </span>
                         <span class="meta entry-meta">
                             <a rel="bookmark" class="entry-date" href="http://twitter.com/{{tweet.user.screen_name}}/status/{{tweet.id}}">
@@ -59,7 +58,7 @@
     <div class="thumb vcard author"><a class="url" href="http://twitter.com/{{tweet.user.screen_name}}"><img width="48" height="48" src="{{tweet.user.profile_image_url}}" class="photo fn" alt="{{tweet.user.name}}"/></a></div>
     <div class="status-body">
       <a class="author" title="{{tweet.user.name}}" href="http://twitter.com/{{tweet.user.screen_name}}">{{tweet.user.screen_name}}</a>
-      <span class="entry-content">{{tweet.text}}</span>
+      <span class="entry-content">{{tweet.text|urlize|twitter_at_linkify}}</span>
       <span class="meta entry-meta"><a rel="bookmark" class="entry-date" href="http://twitter.com/{{tweet.user.screen_name}}/status/{{tweet.id}}"><span title="{{tweet.created_at}}" class="published">{{tweet.created_at}}</span></a> <span>from {{tweet.source}}</span></span>
     </div>
     <div class="actions"></div>
