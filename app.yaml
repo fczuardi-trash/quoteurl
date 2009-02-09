@@ -10,5 +10,9 @@ handlers:
 - url: /skin
   static_dir: skin
 
+- url: /(favicon\.ico|robots\.txt)
+  static_files: static/\1
+  upload: static/(favicon\.ico|robots\.txt)
+
 - url: /.*
   script: main.py
