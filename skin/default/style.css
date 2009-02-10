@@ -185,7 +185,6 @@ h3{
     position:relative;
     width:130px;
     height:44px;
-    clear:right;
     border:none;
     background-image:url(/skin/default/permalink_twitter.png);
     background-repeat:no-repeat;
@@ -199,6 +198,10 @@ h3{
 }
 #permalink-help.search{
     background-image:url(/skin/default/permalink_search.png);
+}
+.section-end{
+    float:none;
+    clear:both;
 }
 #add-tweet-form label{
     display:block;
