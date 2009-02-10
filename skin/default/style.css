@@ -163,12 +163,35 @@ h3{
 .split-help{
     margin-top:1em;
     padding:1em;
-    font-size:.7em;
+    font-size:.8em;
     color:#888;
     border:2px solid #9AE4E8;
     -moz-border-radius: .5em;
     border-radius: .5em;
     width:80%;
+}
+.split-help p{
+    display:block;
+    float:left;
+    margin-right:135px;
+}
+.split-help b{
+    color:#666;
+}
+#permalink-help{
+    position:relative;
+    width:130px;
+    height:44px;
+    clear:right;
+    border:none;
+    background-image:url(/skin/default/permalink_twitter.png);
+    background-repeat:no-repeat;
+    margin:-5px;
+    margin-left:-125px;
+    left:100%;
+}
+#permalink-help.search{
+    background-image:url(/skin/default/permalink_search.png);
 }
 #add-tweet-form label{
     display:block;

@@ -203,6 +203,9 @@ function splitScreenToggle(mode){
     var quoteurl_half = $('main-container')
     var twitter_half = $('twitter-container')
     var twitter_iframe = $('twitter-iframe')
+    var permalink_help = $('permalink-help')
+    permalink_help.removeClass((mode=='home')?'search':'home')
+    permalink_help.addClass(mode)
     var urls = {
         'home':'http://twitter.com/home',
         'search':'http://search.twitter.com'
