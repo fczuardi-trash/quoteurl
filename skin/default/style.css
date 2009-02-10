@@ -206,7 +206,18 @@ h3{
 #add-tweet-form label{
     display:block;
 }
+.splitted .c1{
+    border:1px solid #ccc;
+    width:48%;
+    position:fixed;
+    background-color:#fff;
+    opacity:.92;
+    z-index:9;
+}
 /*------ STEP 2 -------*/
+.splitted .c2{
+    margin-top:25em;
+}
 .quoteurl-quote{
     padding-left:0px;
     padding:.6em;
@@ -356,7 +367,7 @@ li:hover .del{
 /*------ FOOTER -------*/
 
 .footer{
-    clear:both;
+    clear:left;
     font-size:x-small;
     text-align:center;
     margin-top:8em;
