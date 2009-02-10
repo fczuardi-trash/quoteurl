@@ -34,7 +34,13 @@ body{
     position:relative;
     z-index:2;
 }
-
+#close-split{
+    position:fixed;
+    right:10px;
+    top:10px;
+    background-color:#f33;
+    z-index:3;
+}
 /*--- HEADER ---*/
 #header{
     text-align:center;

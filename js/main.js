@@ -204,22 +204,24 @@ function splitScreenToggle(mode){
     var twitter_half = $('twitter-container')
     var twitter_iframe = $('twitter-iframe')
     var permalink_help = $('permalink-help')
-    permalink_help.removeClass((mode=='home')?'search':'home')
-    permalink_help.addClass(mode)
+    permalink_help.removeClass((mode!='search')?'search':'home')
+    permalink_help.addClass((mode=='search')?'search':'home')
     var urls = {
         'home':'http://twitter.com/home',
         'search':'http://search.twitter.com'
     }
-    if ((document.body.hasClass('splitted')) && (twitter_half.get('_mode') == mode)){
+    if ((mode=='close')||((document.body.hasClass('splitted')) && (twitter_half.get('_mode') == mode))){
         quoteurl_half.style.width = '98%'
         twitter_half.style.width = '1%'
         twitter_half.style.visibility = 'hidden'
+        twitter_iframe.style.visibility = 'hidden'
         document.body.removeClass('splitted')
         clearInterval(auto_add_interval)
     } else {
         quoteurl_half.style.width = '50%'
         twitter_half.style.width = '45%'
         twitter_half.style.visibility = 'visible'
+        twitter_iframe.style.visibility = 'visible'
         if (twitter_iframe.get('src') != urls[mode]){
             if (twitter_iframe.get('src') != undefined) {
                 twitter_iframe.style.visibility = 'hidden'
