@@ -83,6 +83,7 @@ body{
     margin-top:1em;
     margin-bottom:2em;
     -moz-border-radius: .5em;
+    -webkit-border-radius: .5em;
     border-radius: .5em;
 }
 .splitted #service-description{
@@ -121,6 +122,7 @@ body{
     margin:auto;
     padding:1em;
     -moz-border-radius: .5em;
+    -webkit-border-radius: .5em;
     border-radius: .5em;
     padding-bottom:0px;
     margin-bottom:2em;
@@ -167,6 +169,7 @@ h3{
     color:#888;
     border:2px solid #9AE4E8;
     -moz-border-radius: .5em;
+    -webkit-border-radius: .5em;
     border-radius: .5em;
     width:80%;
 }
@@ -203,6 +206,7 @@ h3{
     background-color:#ccc;
     border:1px solid #888;
     -moz-border-radius: .5em;
+    -webkit-border-radius: .5em;
     border-radius: .5em;
 }
 .published-quote-page .quoteurl-quote{
@@ -221,6 +225,7 @@ h3{
     background-color:#AFEFF1;
     text-align:center;
     -moz-border-radius: .5em;
+    -webkit-border-radius: .5em;
     border-radius: .5em;
     color: #fff;
 }
