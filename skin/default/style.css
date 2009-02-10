@@ -192,6 +192,10 @@ h3{
     margin:-5px;
     margin-left:-125px;
     left:100%;
+    -moz-border-radius: .5em;
+    -webkit-border-radius: .5em;
+    border-radius: .5em;
+    overflow:hidden;
 }
 #permalink-help.search{
     background-image:url(/skin/default/permalink_search.png);
