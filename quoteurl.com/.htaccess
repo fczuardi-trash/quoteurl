@@ -1,0 +1,8 @@
+# Google doesnt allow to map the naked subdomains (http://quoteurl.com)
+# only CNAMEs like www. (http://www.quoteurl.com). 
+# Since we want http://quoteurl.com/something to work we need to redirect
+# all urls to their www.… equivalent, this is what this rewriting rule do
+# it just makes sure the final url will start with www that is a mapped CNAme already
+Options +FollowSymlinks
+RewriteEngine on
+RewriteRule ^(.*)$ http://www.quoteurl.com/$1 [R,NC]
