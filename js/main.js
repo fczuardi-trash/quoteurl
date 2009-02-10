@@ -34,6 +34,9 @@
 //container for the tweets that will make a quote
 var tweetlist = {}
 
+//interval to be used whe user turns autoadd on
+var auto_add_interval = 0
+
 // global preferences
 var preferences = {
     'order' : 'asc'
@@ -166,6 +169,11 @@ function updateSaveButton(){
         $('save-button').set('disabled', false)
         $('save-button').removeClass('disabled')
     }
+    updateIframeHeight()
+}
+
+function updateIframeHeight(){
+    $('twitter-container').style.height = ($('main-container').offsetHeight-33)+'px'
 }
 
 /** Compare 2 tweets and return true if tweet a comes before b in the current ordering (timestamp-based) **/
@@ -191,8 +199,50 @@ function createQuote(){
     return true
 }
 
-function splitScreen(){
-    return true;
+function splitScreenToggle(mode){
+    var quoteurl_half = $('main-container')
+    var twitter_half = $('twitter-container')
+    var twitter_iframe = $('twitter-iframe')
+    var urls = {
+        'home':'http://twitter.com/home',
+        'search':'http://search.twitter.com'
+    }
+    if ((document.body.hasClass('splitted')) && (twitter_half.get('_mode') == mode)){
+        quoteurl_half.style.width = '98%'
+        twitter_half.style.width = '1%'
+        twitter_half.style.visibility = 'hidden'
+        document.body.removeClass('splitted')
+        clearInterval(auto_add_interval)
+    } else {
+        quoteurl_half.style.width = '50%'
+        twitter_half.style.width = '45%'
+        twitter_half.style.visibility = 'visible'
+        if (twitter_iframe.get('src') != urls[mode]){
+            if (twitter_iframe.get('src') != undefined) {
+                twitter_iframe.style.visibility = 'hidden'
+                twitter_iframe.addEventListener('load', function(){
+                    $('twitter-iframe').style.visibility = 'visible'
+                }, false)
+            }
+            twitter_iframe.set('src', urls[mode])
+            
+        } 
+        document.body.addClass('splitted')
+        autoAddOn()
+        twitter_half.set('_mode', mode)
+    }
+    updateIframeHeight()
+    return false;
+}
+
+function autoAddOn(){
+    $('status-id-field').set('_last_value', $('status-id-field').value)
+    auto_add_interval = setInterval(function(){
+        if(($('status-id-field').get('_last_value') == undefined) && ($('status-id-field').get('value').length > 5)){
+            loadTweet()
+        }
+        $('status-id-field').set('_last_value', $('status-id-field').value)
+    },300)
 }
 
 //--- Errors and Warnings ---

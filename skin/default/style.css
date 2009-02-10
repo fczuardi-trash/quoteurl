@@ -15,10 +15,25 @@ body{
     float:left;
 }
 #twitter-container{
-    width: 1%; height: 100%; float: right;
+    width: 1%;
+    float: right;
     visibility:hidden;
+    margin-right:.3em;
+    border-left:5px dashed #AFEFF1;
 }
-
+#iframe-loading{
+    position:absolute;
+    color:#AFEFF1;
+    font-size:3em;
+    top:5em;
+    left:70%;
+    z-index:1;
+}
+#twitter-iframe{
+    border:none;
+    position:relative;
+    z-index:2;
+}
 
 /*--- HEADER ---*/
 #header{
@@ -70,6 +85,9 @@ body{
     -moz-border-radius: .5em;
     border-radius: .5em;
 }
+.splitted #service-description{
+    display:none;
+}
 /*--- FEEDBACK MESSAGES --*/
 #feedback{
     width:101%;
@@ -80,7 +98,7 @@ body{
     margin:0;
     position:fixed;
     top:0px;
-    z-index:2;
+    z-index:10;
     visibility:hidden;
 }
 #feedback.FAIL{
@@ -101,12 +119,15 @@ body{
     width:70%;
     background-color:#fff;
     margin:auto;
-    padding:2em;
+    padding:1em;
     -moz-border-radius: .5em;
     border-radius: .5em;
     padding-bottom:0px;
     margin-bottom:2em;
     margin-top:1em;
+}
+.splitted .content{
+    width:95%;
 }
 h3{
     font-size:1.7em;
@@ -127,12 +148,30 @@ h3{
     font-size:1.5em;
     width:80%;
 }
+.splitted #status-id-field{
+    height:4em;
+}
 #add-tweet-button{
     font-size:1.5em;
+    vertical-align:bottom;
 }
 .help{
     font-size:small;
     color:#888;
+    margin-bottom:1em;
+}
+.split-help{
+    margin-top:1em;
+    padding:1em;
+    font-size:.7em;
+    color:#888;
+    border:2px solid #9AE4E8;
+    -moz-border-radius: .5em;
+    border-radius: .5em;
+    width:80%;
+}
+#add-tweet-form label{
+    display:block;
 }
 /*------ STEP 2 -------*/
 .quoteurl-quote{

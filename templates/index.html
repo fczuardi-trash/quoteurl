@@ -9,7 +9,7 @@
     <body onload="$('status-id-field').focus()">
         <div id="main-container">
             <div id="header">
-                <h1>QuoteURL <em>for <a href="http://twitter.com/home" title="Split Screen!" onclick="return splitScreen();"><img src="/skin/default/twitter_logo_80x18.png" width="80" height="18" alt="twitter logo" title="QuoteURL is not associated with Twitter.com"></a></em></h1>
+                <h1><a href="/">QuoteURL</a> <em>for <a href="http://twitter.com/home" ><img src="/skin/default/twitter_logo_80x18.png" width="80" height="18" alt="twitter logo" title="QuoteURL is not associated with Twitter.com"></a></em></h1>
                 <p id="service-description" class="todo">
                     QuoteURL helps you <strong>group different Twitter updates</strong> from
                     different people <strong>into a single page</strong> that has a <em>permanent URL</em>. So you can put it on your blog or send interesting conversations to friends.
@@ -22,12 +22,18 @@
             <div class="content">
                 <div class="step c1">
                     <h3>Add tweets</h3>
-                    <form action="/" onsubmit="return loadTweet();">
-                        <label>Enter an individual <b>Twitter status URL</b> or ID here <small>(example: http://twitter.com/fczuardi/status/<b>1186152779</b>)</small>
-                            <input type="text" id="status-id-field" value="" /></label>
-                        <input type="submit" name="tweet" value="+" id="add-tweet-button" onclick="return loadTweet();" />
+                    <form id="add-tweet-form" action="/" onsubmit="return loadTweet();">
+                        <label for="status-id-field">Enter an individual <b>Twitter status URL</b> or ID here <small>(example: http://twitter.com/fczuardi/status/<b>1186152779</b>)</small></label>
+                        <p class="help">{{msg_help1}}</p>
+                        <input type="text" id="status-id-field" value="" /><input type="submit" name="tweet" value="+" id="add-tweet-button" onclick="return loadTweet();" />
                     </form>
-                    <p class="help">{{msg_help1}}</p>
+                    <div class="split-help">
+                        <p>Or you can use one of the <b>Split Screen Modes</b>: 
+                        <a href="http://twitter.com/home" onclick="return splitScreenToggle('home');">Twitter Home</a> and 
+                        <a href="http://twitter.com/home" onclick="return splitScreenToggle('search');">Twitter Search</a> 
+                        to drag <b>permalinks</b>* to the text-field.
+                        </p><p><small>*Permalinks on Twitter are the small links containing the elapsed time, for example: <em>"2 minutes ago"</em>. On Twitter Search the permalinks are the <em>"View Tweet"</em> links.</small></p>
+                    </div>
                 </div>
                 <div class="step c2">
                     <h3>Quote Preview</h3>
@@ -68,6 +74,7 @@
             </div>
         </div> <!-- end main -->
         <div id="twitter-container">
+            <p id="iframe-loading">Loading…</p>
             <iframe width="100%" height="100%" id="twitter-iframe"></iframe>
         </div>
         <div class="footer">
