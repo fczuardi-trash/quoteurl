@@ -225,6 +225,7 @@ class LoadTweet(webapp.RequestHandler):
 class CreateQuote(webapp.RequestHandler):
     
   def post(self):
+    #WARNING - this method can be better, see http://fczuardi.lighthouseapp.com:80/projects/24896/tickets/21 for some preview of what is planned
     status_list     = cgi.escape(self.request.get('statuses')).replace(',',' ').split()
     author_list     = cgi.escape(self.request.get('authors')).replace(',',' ').split()
     author_id_list  = cgi.escape(self.request.get('author_ids')).replace(',',' ').split()
