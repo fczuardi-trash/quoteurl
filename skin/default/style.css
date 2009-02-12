@@ -182,30 +182,13 @@ h3{
     width:80%;
 }
 .split-help p{
-    display:block;
-    float:left;
-    margin-right:135px;
 }
 .split-help b{
     color:#666;
 }
 #permalink-help{
-    position:relative;
-    width:130px;
-    height:44px;
-    border:none;
-    background-image:url(/skin/default/permalink_twitter.png);
-    background-repeat:no-repeat;
-    margin:-5px;
-    margin-left:-125px;
-    left:100%;
-    -moz-border-radius: .5em;
-    -webkit-border-radius: .5em;
-    border-radius: .5em;
-    overflow:hidden;
 }
 #permalink-help.search{
-    background-image:url(/skin/default/permalink_search.png);
 }
 .section-end{
     float:none;

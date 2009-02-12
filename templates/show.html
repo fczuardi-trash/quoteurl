@@ -5,7 +5,7 @@
         <title>QuoteURL (for twitter)</title>
         <link href="/skin/default/style.css" type="text/css" media="screen,projection" rel="stylesheet" /> 
         <link rel="shortcut icon" href="/skin/default/favicon.png" type="image/png" />        
-        <script src="/js/mootools-1.2.1-core.js" type="text/javascript"></script>
+        <script src="/js/mootools-1.2.1-core-yc.js" type="text/javascript"></script>
         <script src="/js/main.js" type="text/javascript"></script>
     </head>
     <body class="published-quote-page" {% if just_created %} onload="warnUser('Great Success! Your QuoteURL is ready!','WIN',3000);"{% endif %}>
@@ -53,7 +53,7 @@
         {{tweet.text|urlize|twitter_at_linkify|escape}}
       &lt;/span&gt;
       &lt;span class="meta entry-meta" style="color:#888;font-family:georgia;font-size:0.8em;font-style:italic;"&gt;
-        &lt;a rel="bookmark" class="entry-date" style="color:#888;text-decoration:none;" href="http://twitter.com/{{tweet.user.screen_name}}/status/{{tweet.id}}" onmouseover="this.style.textDecoration='underline';"&gt;
+        &lt;a rel="bookmark" class="entry-date" style="color:#888;text-decoration:none;" href="http://twitter.com/{{tweet.user.screen_name}}/status/{{tweet.id}}" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';"&gt;
           &lt;span title="{{tweet.created_at}}" class="published"&gt;{{tweet.created_at|date:"d M Y - H:i"}}&lt;/span&gt;
         &lt;/a&gt; 
         &lt;span&gt;from {{tweet.source|escape}}&lt;/span&gt;
@@ -82,7 +82,9 @@
                     <a href="http://apiwiki.twitter.com/">Twitter API</a>,
                     <a href="http://appengine.google.com">Google App Engine</a>, 
                     <a href="http://mootools.net">MooTols</a>, 
-                    <a href="http://github.com">github</a>.
+                    <a href="http://github.com">github</a>,
+                    <a href="http://lighthouseapp.com">Lighthouse</a>,
+                    <a href="http://pledgie.org">Pledgie</a>.
                 </em>
             </p>
             <p>QuoteURL is not associated with Twitter. Twitter is a registered trademark of Twitter Inc.</p>
