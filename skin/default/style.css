@@ -273,6 +273,15 @@ h3{
 #share textarea{
     overflow:hidden;
 }
+#include-style-checkbox{
+    vertical-align: bottom;
+}
+#include-style-label{
+    margin-left: 0.2em; 
+    width: 5em; 
+    font-size: xx-small; 
+    vertical-align: middle;"
+}
 #dummy-tweet{
     color:#888;
     background-color:#fafafa;

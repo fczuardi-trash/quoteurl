@@ -41,6 +41,7 @@ var auto_add_interval = 0
 var preferences = {
     'order' : 'asc'
 }
+var embed_styles = null
 
 //For people without firebug
 if (!console) {
@@ -250,6 +251,36 @@ function autoAddOn(){
     },300)
 }
 
+function toggleEmbedStyle(check){
+    var styled = check.get('checked')
+    var embed_field = $('quoteURL-embed-field')
+    if (embed_styles == null){
+        //first-time, store the style info
+        embed_styles = embed_field.value.match(/<.*style="[^"]*"/g)
+    }
+    var lastindex = 0;
+    var embed_string = embed_field.value
+    if (!styled) {
+        //remove style
+        for (var i=0; i<embed_styles.length; i++){
+            lastindex = embed_string.indexOf(embed_styles[i],lastindex)
+            embed_string =  embed_string.substring(0,lastindex) +
+                                embed_styles[i].substring(0, embed_styles[i].indexOf('style="')-1) +
+                                embed_string.substring(lastindex+embed_styles[i].length, embed_string.length)
+        }
+        embed_field.value = embed_string.replace('QuoteURL styled embed start','QuoteURL no-style embed start')
+    } else {
+        //put styles back
+        for (var i=0; i<embed_styles.length; i++){
+            var searchfor = embed_styles[i].substring(0, embed_styles[i].indexOf('style="')-1)
+            lastindex = embed_string.indexOf(searchfor,lastindex)
+            embed_string =  embed_string.substring(0,lastindex) +
+                                embed_styles[i] +
+                                embed_string.substring(lastindex+searchfor.length, embed_string.length)
+        }
+        embed_field.value = embed_string.replace('QuoteURL no-style embed start','QuoteURL styled embed start')
+    }
+}
 //--- Errors and Warnings ---
 
 /** 
