@@ -6,6 +6,8 @@
 body{
     font-family: 'Lucida Grande',sans-serif;
     background-color: #9AE4E8;
+    background-image: url(page_top_gradient.png);
+    background-repeat: repeat-x;
 }
 
 
@@ -51,10 +53,26 @@ body{
 #header h1{
     color:white;
     margin-bottom:.7em;
+    width:330px;
+    height:187px;
+    position:absolute;
+    left:22px;
+    top:60px;
+    background-image:url(logo.png);
+    background-repeat:no-repeat;
+    overflow:hidden;
 }
 #header h1 em{
     font-size:.4em;
     vertical-align:middle;
+    left:152px;
+    top:77px;
+    position:absolute;
+}
+#header h1 a.title{
+    margin-top:-2em;
+    height:5em;
+    display:block;
 }
 #header h1 em a,
 #header h1 em a:visited{
@@ -83,13 +101,12 @@ body{
     margin:.2em;
 }
 #service-description{
-    margin:auto;
     background-color:#fff;
     padding:1em;
-    width:40%;
-    margin:auto;
-    margin-top:1em;
-    margin-bottom:2em;
+    width:49%;
+    margin-top:5.5em;
+    margin-bottom:1.5em;
+    margin-left:377px;
     -moz-border-radius: .5em;
     -webkit-border-radius: .5em;
     border-radius: .5em;
@@ -125,7 +142,7 @@ body{
 
 /*---CONTENT -------*/
 .content{
-    width:70%;
+    width:89%;
     background-color:#fff;
     margin:auto;
     padding:1em;
@@ -135,6 +152,8 @@ body{
     padding-bottom:0px;
     margin-bottom:2em;
     margin-top:1em;
+    position:relative;
+    z-index:5;
 }
 .splitted .content{
     width:95%;
@@ -218,9 +237,6 @@ h3{
     -webkit-border-radius: .5em;
     border-radius: .5em;
 }
-.published-quote-page .quoteurl-quote{
-    background-color:#fff;
-}
 .published-quote-page .quoteurl-quote,
 .published-quote-page #share{
     padding:.4em;
@@ -229,6 +245,12 @@ h3{
     max-width:700px;
     margin:auto;
     margin-top:2em;
+}
+.published-quote-page .quoteurl-quote{
+    background-color:#fff;
+    margin-top:200px;
+    position:relative;
+    z-index:6;
 }
 #share{
     background-color:#AFEFF1;
