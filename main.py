@@ -205,6 +205,7 @@ def loadTweetOrCreate(tweet_id, request_handler):
     if not tweet:
       # json also not in datastore load from twitter and put it on the datastore
       result = urlfetch.fetch(url)
+      to_put = []
       if result.status_code == 200:
         # success, load the json content into a python object
         loaded_tweet = simplejson.loads(result.content)
@@ -217,14 +218,15 @@ def loadTweetOrCreate(tweet_id, request_handler):
           if twitterUserAttributesAreDifferent(twitter_user, loaded_tweet['user']):
             updateTwitterUserAttributes(twitter_user, loaded_tweet['user'])
             # add/update twitter user in the datastore
-            user_key = db.put(twitter_user);
+            to_put.append(twitter_user)
           else:
             # no need to update twitter user on datastore, one less put call! \o/
             pass
           # update the information on the tweets to include author datastore references
           tweet.author = twitter_user
           # add/update tweet in the DataStore
-          tweet_key = db.put(tweet);
+          to_put.append(tweet)
+          db.put(to_put);
           #add tweet to cache
           memcache.add(cache_key, result.content, LOADED_TWEET_CACHE_TIME)
           return result.content
