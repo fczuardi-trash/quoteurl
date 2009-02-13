@@ -392,13 +392,6 @@ class ShowQuote(webapp.RequestHandler):
     return True
     
 
-class Test(webapp.RequestHandler):
-  def get(self):
-    c = "abcdefghijklmnopqrstuvxywz0123456789"
-    l, key = len(c) , ''
-    while len(key) < 5: key += c[randrange(0,l)]
-    self.response.out.write(key)
-    
 class SignIn(webapp.RequestHandler):
   def get(self):
     user = users.get_current_user()
