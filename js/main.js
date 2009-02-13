@@ -64,7 +64,7 @@ function loadTweet(){
     $('add-tweet-button').set('value','…')
     //request tweet
     var url = '/a/loadtweet'
-    var jsonRequest = new Request.JSON({'url': url, onComplete: requestComplete, onSuccess: onTweetLoaded, onFailure: onTweetLoadFailure}).get({'id': statusId, 'fmt': 'json'});
+    var jsonRequest = new Request.JSON({'url': url, onComplete: requestComplete, onSuccess: onTweetLoaded, onFailure: onTweetLoadFailure}).post({'id': statusId, 'fmt': 'json'});
     return false
 }
 
@@ -241,7 +241,7 @@ function splitScreenToggle(mode){
     return false;
 }
 
-function autoAddOn(){
+function enableAutoAdd(){
     $('status-id-field').set('_last_value', $('status-id-field').value)
     auto_add_interval = setInterval(function(){
         if(($('status-id-field').get('_last_value') == undefined) && ($('status-id-field').get('value').length > 5)){

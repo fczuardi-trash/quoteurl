@@ -147,6 +147,20 @@ class Dialogue(db.Model):
 
 
 #--- HELPERS ---
+def twitterUserAttributesAreDifferent(user, dictionary):
+  return (
+    user.description        !=  dictionary['description']           or
+    user.location           !=  dictionary['location']              or
+    user.name               !=  dictionary['name']                  or
+    user.profile_image_url  !=  dictionary['profile_image_url']     or
+    user.screen_name        !=  dictionary['screen_name']           or
+    user.url                !=  dictionary['url']                   or
+    user.protected          !=  bool(dictionary['protected'])       or
+    user.followers_count    !=  int(dictionary['followers_count'])  or
+    user.user_id            !=  str(dictionary['id'])               or
+    user.numeric_user_id    !=  int(dictionary['id'])               or
+    user.json               !=  simplejson.dumps(dictionary) )
+
 def updateTwitterUserAttributes(user, dictionary):
   # if the user entity already exists update it, otherwise create a new entity
   user.description        = dictionary['description']
@@ -179,6 +193,58 @@ def updateTweetAttributes(tweet, dictionary):
   if dictionary['in_reply_to_status_id'] is not None:
     tweet.numeric_in_reply_to_status_id = int(dictionary['in_reply_to_status_id'])
 
+# returns JSON
+def loadTweetOrCreate(tweet_id, request_handler):
+  url         = 'http://twitter.com/statuses/show/'+ tweet_id +'.json'
+  cache_key   = 'tweet_'+ tweet_id +'.json'
+  # look in the cache
+  tweet_json = memcache.get(cache_key)
+  if tweet_json is None:
+    # json not on cache, check the datastore
+    tweet = Tweet.get_by_key_name('Tweet:'+str(tweet_id))
+    if not tweet:
+      # json also not in datastore load from twitter and put it on the datastore
+      result = urlfetch.fetch(url)
+      if result.status_code == 200:
+        # success, load the json content into a python object
+        loaded_tweet = simplejson.loads(result.content)
+        if loaded_tweet['id']:
+          tweet = Tweet.get_or_insert(key_name='Tweet:'+str(loaded_tweet['id']))
+          updateTweetAttributes(tweet, loaded_tweet)
+          # loaded tweets also contains user info, so write the info on the datastore to keep it updated
+          twitter_user = TwitterUser.get_or_insert(key_name='TwitterUser:'+tweet.author_id)
+          # compare and see if needs update before updating
+          if twitterUserAttributesAreDifferent(twitter_user, loaded_tweet['user']):
+            updateTwitterUserAttributes(twitter_user, loaded_tweet['user'])
+            # add/update twitter user in the datastore
+            user_key = db.put(twitter_user);
+          else:
+            # no need to update twitter user on datastore, one less put call! \o/
+            pass
+          # update the information on the tweets to include author datastore references
+          tweet.author = twitter_user
+          # add/update tweet in the DataStore
+          tweet_key = db.put(tweet);
+          #add tweet to cache
+          memcache.add(cache_key, result.content, LOADED_TWEET_CACHE_TIME)
+          return result.content
+        else:
+          # error! the loaded url doesnt contains the expected json!
+          request_handler.response.out.write('error! the loaded url doesnt contains the expected json!')
+          return None
+      else:
+        # request failed with an error
+        request_handler.response.set_status(result.status_code)
+        request_handler.response.out.write(result.content)
+        return None
+    else:
+      #tweet json is in the datastore
+      return tweet.json
+  else:
+    # json is on the cache, good
+    return tweet_json
+
+
 def randomHash(size):
   c = "abcdefghijklmnopqrstuvxywz0123456789"
   l, h = len(c) , ''
@@ -202,40 +268,26 @@ class MainPage(webapp.RequestHandler):
     self.response.out.write(template.render(path, template_values))
 
 class LoadTweet(webapp.RequestHandler):
-  def get(self):
+  def post(self):
     tweet_id    = cgi.escape(self.request.get('id'))
     fmt         = cgi.escape(self.request.get('fmt'))
-    url         = 'http://twitter.com/statuses/show/'+ tweet_id +'.json'
-    key         = 'tweet_'+ tweet_id +'.json'
-    tweet_json  = memcache.get(key)
+    tweet_json  = loadTweetOrCreate(tweet_id, self)
     if tweet_json is not None:
       self.response.out.write(tweet_json)
       return True
     else:
-      result = urlfetch.fetch(url)
-      if result.status_code == 200:
-        self.response.out.write(result.content)
-        memcache.add(key, result.content, LOADED_TWEET_CACHE_TIME)
-        return True
-      else:
-        self.response.set_status(result.status_code)
-        self.response.out.write(result.content)
-        return False
+      return False
 
 class CreateQuote(webapp.RequestHandler):
     
   def post(self):
-    #WARNING - this method can be better, see http://fczuardi.lighthouseapp.com:80/projects/24896/tickets/21 for some preview of what is planned
     status_list     = cgi.escape(self.request.get('statuses')).replace(',',' ').split()
     author_list     = cgi.escape(self.request.get('authors')).replace(',',' ').split()
     author_id_list  = cgi.escape(self.request.get('author_ids')).replace(',',' ').split()
     user            = users.get_current_user()
     ip              = os.environ['REMOTE_ADDR']
     ua              = os.environ['HTTP_USER_AGENT']
-    tweets_to_put   = []
-    users_to_put    = []
     tweets          = []
-    remaining_authors = list(sets.Set(author_id_list[:]))
     
     # logged user or anonymous?
     if not user:
@@ -260,49 +312,19 @@ class CreateQuote(webapp.RequestHandler):
       self.response.out.write(template.render(path, {'login_url' : '/a/login'}))
       return False
 
-    # iterate through all quoted tweets and see if it's cached or exists in the DataStore, if not load their contents from Twitter
+    # iterate through all quoted tweets and see if it exists, if not load their contents from Twitter
     for tweet_id in status_list:
-      cache_key = 'tweet_'+ tweet_id +'.json'
-      tweet_json = memcache.get(cache_key)
+      tweet_json  = loadTweetOrCreate(tweet_id, self)
       if tweet_json is None:
-        # json not on cache, load from twitter again
-        #@TODO
-        self.response.out.write('Zuardi needs to implement the re-fetch from Twitter after cache timeout. Blame him! :)')
-        return False
+          self.response.out.write('Error loading tweet:'+tweet_id)
+          return False
       else:
-        # json is on the cache, good
+        # json is loaded, good
         pass
-      
-      # load json info into a python object
       loaded_tweet = simplejson.loads(tweet_json)
-      
-      # create/update tweet
-      tweet = Tweet.get_or_insert(key_name='Tweet:'+str(loaded_tweet['id']))
-      updateTweetAttributes(tweet, loaded_tweet)
-      tweets_to_put.append(tweet)
       tweets.append(loaded_tweet)
-      
-      # check if the user has been included already in the "list of users to put"
-      if  tweet.author_id in remaining_authors:
-        #create/update twitter user
-        twitter_user = TwitterUser.get_or_insert(key_name='TwitterUser:'+tweet.author_id)
-        updateTwitterUserAttributes(twitter_user, loaded_tweet['user'])
-        users_to_put.append(twitter_user)
-        remaining_authors.remove(tweet.author_id)
-      else:
-        pass
-    
-    # put all users in the DataStore, updating the existing ones
-    user_keys = db.put(users_to_put);
-    
-    # update the information on the tweets to include author datastore references
-    for tweet in tweets_to_put:
-      tweet.author = TwitterUser.get_by_key_name('TwitterUser:'+tweet.author_id).key()
-    # put all tweets in the DataStore, updating the existing ones
-    tweet_keys = db.put(tweets_to_put);
     
     dialogue_title = ' '.join(status_list)
-    
     dialogue = Dialogue.get_or_insert(
                                     parent=dialogue_parent,
                                     key_name='Dialogue:'+dialogue_user_email+':'+dialogue_title
