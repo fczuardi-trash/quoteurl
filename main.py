@@ -285,13 +285,16 @@ class ShowQuote(webapp.RequestHandler):
       return False
     just_created = ((datetime.datetime.now() - dialogue.created_date).seconds < 5)
     tweets = simplejson.loads(dialogue.json)
+    authors = {}
     for tweet in tweets:
       tweet['created_at'] = datetime.datetime.strptime(tweet['created_at'], "%a %b %d %H:%M:%S +0000 %Y")
       tweet['source'] = unescape(tweet['source'])
+      authors[tweet['user']['screen_name']] = tweet['user']['name']
     template_values = {
       'just_created'  : just_created,
       'app_url'       : app_url,
       'page_url'      : page_url,
+      'authors'       : authors.values(),
       'tweets'        : tweets
     }
     path = os.path.join(os.path.dirname(__file__), 'templates/show.html')
