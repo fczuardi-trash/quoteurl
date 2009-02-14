@@ -8,6 +8,7 @@ body{
     background-color: #9AE4E8;
     background-image: url(page_top_gradient.png);
     background-repeat: repeat-x;
+    background-position: top;
 }
 
 
