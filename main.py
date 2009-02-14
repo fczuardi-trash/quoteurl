@@ -53,11 +53,13 @@ from random import randrange
 
 webapp.template.register_template_library('customfilters')
 
+
 #--- CONSTANTS ---
 MAX_QUOTE_SIZE_SIGNED_OUT = 4
 MAX_QUOTE_SIZE_SIGNED_IN  = 10
 LOADED_TWEET_CACHE_TIME   = 60*60 # one hour
 URL_HASH_SIZE             = 5
+
 
 #--- MODELS ---
 class TwitterUser(db.Model):
@@ -102,7 +104,6 @@ class GitHubUser(db.Model):
   screen_name       = db.StringProperty()
   updated_date      = db.DateTimeProperty(auto_now=True)
   imported_date     = db.DateTimeProperty(auto_now_add=True)
-  
 
 class QuoteURLUser(db.Model):
   name                  = db.StringProperty()
@@ -144,6 +145,169 @@ class Dialogue(db.Model):
   json                  = db.TextProperty()
   rating                = db.RatingProperty()  # not real time
   latest_rating_update  = db.DateTimeProperty()
+
+
+#--- MAPPINGS ---
+def main():
+  application = webapp.WSGIApplication(
+  [
+    ('/'                  , MainPage),
+    ('/a/login'           , SignIn),
+    ('/a/upgrade'         , UpgradeMembership),
+    ('/a/loadtweet'       , LoadTweet),
+    ('/a/create'          , CreateQuote),
+    ('/(.[a-z0-9]+)(.*)'  , ShowQuote)
+  ], debug=True)
+  wsgiref.handlers.CGIHandler().run(application)
+
+
+#--- ENTRYPOINTS ---
+class MainPage(webapp.RequestHandler):
+  def get(self):
+    user = users.get_current_user()
+    if not user:
+      msg_help1 = 'Anonymous users can add up to <em id="quote-size-limit">'+str(MAX_QUOTE_SIZE_SIGNED_OUT)+'</em> Tweets per quote, <a href="/a/login">Sign-in</a> if you need more'
+    else:
+      msg_help1 = 'You can add up to <em id="quote-size-limit">'+str(MAX_QUOTE_SIZE_SIGNED_IN)+'</em> Tweets per quote. If you need more visit the <a href="/a/upgrade">upgrade membership</a> page.'
+    
+    template_values = {
+      'msg_help1' : msg_help1
+    }
+    path = os.path.join(os.path.dirname(__file__), 'templates/index.html')
+    self.response.out.write(template.render(path, template_values))
+
+class LoadTweet(webapp.RequestHandler):
+  def post(self):
+    tweet_id    = cgi.escape(self.request.get('id'))
+    fmt         = cgi.escape(self.request.get('fmt'))
+    tweet_json  = loadTweetOrCreate(tweet_id, self)
+    if tweet_json is not None:
+      self.response.out.write(tweet_json)
+      return True
+    else:
+      return False
+
+class CreateQuote(webapp.RequestHandler):
+  def post(self):
+    status_list     = cgi.escape(self.request.get('statuses')).replace(',',' ').split()
+    author_list     = cgi.escape(self.request.get('authors')).replace(',',' ').split()
+    author_id_list  = cgi.escape(self.request.get('author_ids')).replace(',',' ').split()
+    user            = users.get_current_user()
+    ip              = os.environ['REMOTE_ADDR']
+    ua              = os.environ['HTTP_USER_AGENT']
+    tweets          = []
+    
+    # logged user or anonymous?
+    if not user:
+      quote_limit = MAX_QUOTE_SIZE_SIGNED_OUT
+      quoteURL_user = None
+      dialogue_parent = None
+      dialogue_user_email = 'ANONYMOUS'
+    else:
+      quote_limit = MAX_QUOTE_SIZE_SIGNED_IN
+      quoteURL_user = QuoteURLUser.get_or_insert(key_name='QuoteURLUser:'+user.email(),
+                                                  email = user.email(),
+                                                  google_user = user
+                                                )
+      dialogue_parent = quoteURL_user
+      dialogue_user_email = user.email()
+      
+    #check to see if the user is trying to manually cheat her limits
+    if (len(status_list) > quote_limit):
+      path = os.path.join(os.path.dirname(__file__), 'templates/error_limit_exceeded.html')
+      self.response.set_status(400)
+      self.response.out.write(template.render(path, {'login_url' : '/a/login'}))
+      return False
+
+    # iterate through all quoted tweets and see if it exists, if not load their contents from Twitter
+    for tweet_id in status_list:
+      tweet_json  = loadTweetOrCreate(tweet_id, self)
+      if tweet_json is None:
+          self.response.out.write('Error loading tweet:'+tweet_id)
+          return False
+      else:
+        # json is loaded, good
+        pass
+      loaded_tweet = simplejson.loads(tweet_json)
+      tweets.append(loaded_tweet)
+    
+    dialogue_title = ' '.join(status_list)
+    dialogue = Dialogue.get_or_insert(
+                                    parent=dialogue_parent,
+                                    key_name='Dialogue:'+dialogue_user_email+':'+dialogue_title
+                                    )
+    dialogue.title = dialogue_title
+    dialogue.tweet_id_list = status_list
+    dialogue.quoted_by = user
+    dialogue.quoter_ip = ip
+    dialogue.quoter_user_agent = ua
+    dialogue.alias = None
+    dialogue.authors = ' '.join(author_list)
+    dialogue.author_list = author_list
+    dialogue.author_id_list = author_id_list
+    dialogue.rating = None
+    dialogue.tags = []
+    dialogue.json = simplejson.dumps(tweets)
+    if not dialogue.short:
+      h = randomHash(URL_HASH_SIZE)
+      while Dialogue.gql("WHERE short = :1", h).get() is not None :
+        h = randomHash(URL_HASH_SIZE)
+      dialogue.short = h
+
+    # a transaction that: 
+    # 1- increments the quotes_created counter for the quoteURLUser
+    # 2- save quoteURLUser and the created dialogue entity
+    def save_dialogue():
+      quoteURL_user.quotes_created += 1
+      db.put([quoteURL_user, dialogue])
+    
+    if not user:
+      # quotes created anonymously can be saved direct
+      dialogue.put()
+    else:
+      db.run_in_transaction(save_dialogue)
+
+    self.redirect('/'+dialogue.short)
+    return True
+
+class ShowQuote(webapp.RequestHandler):
+  def get(self, short, rubish):
+    if rubish:
+      self.redirect('/'+short)
+      return False
+    app_url   = os.environ['HTTP_HOST']
+    page_url  = 'http://'+app_url+'/'+short
+    dialogue  = Dialogue.gql("WHERE short = :1", short).get()
+    if not dialogue:
+      path = os.path.join(os.path.dirname(__file__), 'templates/error_quote_not_found.html')
+      self.response.set_status(404)
+      self.response.out.write(template.render(path, {}))
+      return False
+    just_created = ((datetime.datetime.now() - dialogue.created_date).seconds < 5)
+    tweets = simplejson.loads(dialogue.json)
+    for tweet in tweets:
+      tweet['created_at'] = datetime.datetime.strptime(tweet['created_at'], "%a %b %d %H:%M:%S +0000 %Y")
+      tweet['source'] = unescape(tweet['source'])
+    template_values = {
+      'just_created'  : just_created,
+      'app_url'       : app_url,
+      'page_url'      : page_url,
+      'tweets'        : tweets
+    }
+    path = os.path.join(os.path.dirname(__file__), 'templates/show.html')
+    self.response.out.write(template.render(path, template_values))
+    return True
+
+class SignIn(webapp.RequestHandler):
+  def get(self):
+    user = users.get_current_user()
+    self.redirect(users.create_login_url('/'))
+
+class UpgradeMembership(webapp.RequestHandler):
+  def get(self):
+    template_values = {}
+    path = os.path.join(os.path.dirname(__file__), 'templates/upgrade.html')
+    self.response.out.write(template.render(path, template_values))
 
 
 #--- HELPERS ---
@@ -246,177 +410,12 @@ def loadTweetOrCreate(tweet_id, request_handler):
     # json is on the cache, good
     return tweet_json
 
-
 def randomHash(size):
   c = "abcdefghijklmnopqrstuvxywz0123456789"
   l, h = len(c) , ''
   while len(h) < size: h += c[randrange(0,l)]
   return h
 
-#--- ENTRYPOINTS ---
-
-class MainPage(webapp.RequestHandler):
-  def get(self):
-    user = users.get_current_user()
-    if not user:
-      msg_help1 = 'Anonymous users can add up to <em id="quote-size-limit">'+str(MAX_QUOTE_SIZE_SIGNED_OUT)+'</em> Tweets per quote, <a href="/a/login">Sign-in</a> if you need more'
-    else:
-      msg_help1 = 'You can add up to <em id="quote-size-limit">'+str(MAX_QUOTE_SIZE_SIGNED_IN)+'</em> Tweets per quote. If you need more visit the <a href="/a/upgrade">upgrade membership</a> page.'
-    
-    template_values = {
-      'msg_help1' : msg_help1
-    }
-    path = os.path.join(os.path.dirname(__file__), 'templates/index.html')
-    self.response.out.write(template.render(path, template_values))
-
-class LoadTweet(webapp.RequestHandler):
-  def post(self):
-    tweet_id    = cgi.escape(self.request.get('id'))
-    fmt         = cgi.escape(self.request.get('fmt'))
-    tweet_json  = loadTweetOrCreate(tweet_id, self)
-    if tweet_json is not None:
-      self.response.out.write(tweet_json)
-      return True
-    else:
-      return False
-
-class CreateQuote(webapp.RequestHandler):
-    
-  def post(self):
-    status_list     = cgi.escape(self.request.get('statuses')).replace(',',' ').split()
-    author_list     = cgi.escape(self.request.get('authors')).replace(',',' ').split()
-    author_id_list  = cgi.escape(self.request.get('author_ids')).replace(',',' ').split()
-    user            = users.get_current_user()
-    ip              = os.environ['REMOTE_ADDR']
-    ua              = os.environ['HTTP_USER_AGENT']
-    tweets          = []
-    
-    # logged user or anonymous?
-    if not user:
-      quote_limit = MAX_QUOTE_SIZE_SIGNED_OUT
-      quoteURL_user = None
-      dialogue_parent = None
-      dialogue_user_email = 'ANONYMOUS'
-    else:
-      quote_limit = MAX_QUOTE_SIZE_SIGNED_IN
-      quoteURL_user = QuoteURLUser.get_or_insert(key_name='QuoteURLUser:'+user.email(),
-                                                  email = user.email(),
-                                                  google_user = user
-                                                )
-      dialogue_parent = quoteURL_user
-      dialogue_user_email = user.email()
-      
-
-    #check to see if the user is trying to manually cheat her limits
-    if (len(status_list) > quote_limit):
-      path = os.path.join(os.path.dirname(__file__), 'templates/error_limit_exceeded.html')
-      self.response.set_status(400)
-      self.response.out.write(template.render(path, {'login_url' : '/a/login'}))
-      return False
-
-    # iterate through all quoted tweets and see if it exists, if not load their contents from Twitter
-    for tweet_id in status_list:
-      tweet_json  = loadTweetOrCreate(tweet_id, self)
-      if tweet_json is None:
-          self.response.out.write('Error loading tweet:'+tweet_id)
-          return False
-      else:
-        # json is loaded, good
-        pass
-      loaded_tweet = simplejson.loads(tweet_json)
-      tweets.append(loaded_tweet)
-    
-    dialogue_title = ' '.join(status_list)
-    dialogue = Dialogue.get_or_insert(
-                                    parent=dialogue_parent,
-                                    key_name='Dialogue:'+dialogue_user_email+':'+dialogue_title
-                                    )
-    dialogue.title = dialogue_title
-    dialogue.tweet_id_list = status_list
-    dialogue.quoted_by = user
-    dialogue.quoter_ip = ip
-    dialogue.quoter_user_agent = ua
-    dialogue.alias = None
-    dialogue.authors = ' '.join(author_list)
-    dialogue.author_list = author_list
-    dialogue.author_id_list = author_id_list
-    dialogue.rating = None
-    dialogue.tags = []
-    dialogue.json = simplejson.dumps(tweets)
-    if not dialogue.short:
-      h = randomHash(URL_HASH_SIZE)
-      while Dialogue.gql("WHERE short = :1", h).get() is not None :
-        h = randomHash(URL_HASH_SIZE)
-      dialogue.short = h
-
-    # a transaction that: 
-    # 1- increments the quotes_created counter for the quoteURLUser
-    # 2- save quoteURLUser and the created dialogue entity
-    def save_dialogue():
-      quoteURL_user.quotes_created += 1
-      db.put([quoteURL_user, dialogue])
-    
-    if not user:
-      # quotes created anonymously can be saved direct
-      dialogue.put()
-    else:
-      db.run_in_transaction(save_dialogue)
-
-    self.redirect('/'+dialogue.short)
-    return True
-
-class ShowQuote(webapp.RequestHandler):
-  def get(self, short, rubish):
-    if rubish:
-      self.redirect('/'+short)
-      return False
-    app_url   = os.environ['HTTP_HOST']
-    page_url  = 'http://'+app_url+'/'+short
-    dialogue  = Dialogue.gql("WHERE short = :1", short).get()
-    if not dialogue:
-      path = os.path.join(os.path.dirname(__file__), 'templates/error_quote_not_found.html')
-      self.response.set_status(404)
-      self.response.out.write(template.render(path, {}))
-      return False
-    just_created = ((datetime.datetime.now() - dialogue.created_date).seconds < 5)
-    tweets = simplejson.loads(dialogue.json)
-    for tweet in tweets:
-      tweet['created_at'] = datetime.datetime.strptime(tweet['created_at'], "%a %b %d %H:%M:%S +0000 %Y")
-      tweet['source'] = unescape(tweet['source'])
-    template_values = {
-      'just_created'  : just_created,
-      'app_url'       : app_url,
-      'page_url'      : page_url,
-      'tweets'        : tweets
-    }
-    path = os.path.join(os.path.dirname(__file__), 'templates/show.html')
-    self.response.out.write(template.render(path, template_values))
-    return True
-    
-
-class SignIn(webapp.RequestHandler):
-  def get(self):
-    user = users.get_current_user()
-    self.redirect(users.create_login_url('/'))
-    
-class UpgradeMembership(webapp.RequestHandler):
-  def get(self):
-    template_values = {}
-    path = os.path.join(os.path.dirname(__file__), 'templates/upgrade.html')
-    self.response.out.write(template.render(path, template_values))
-
-#--- MAPPINGS ---
-def main():
-  application = webapp.WSGIApplication(
-  [
-    ('/'                  , MainPage),
-    ('/a/login'           , SignIn),
-    ('/a/upgrade'         , UpgradeMembership),
-    ('/a/loadtweet'       , LoadTweet),
-    ('/a/create'          , CreateQuote),
-    ('/(.[a-z0-9]+)(.*)'  , ShowQuote)
-  ], debug=True)
-  wsgiref.handlers.CGIHandler().run(application)
 
 if __name__ == "__main__":
   main()
