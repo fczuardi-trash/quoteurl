@@ -153,6 +153,7 @@ def main():
   [
     ('/'                  , MainPage),
     ('/a/login'           , SignIn),
+    ('/a/logout'          , SignOut),
     ('/a/upgrade'         , UpgradeMembership),
     ('/a/loadtweet'       , LoadTweet),
     ('/a/create'          , CreateQuote),
@@ -172,7 +173,8 @@ class MainPage(webapp.RequestHandler):
       msg_help1 = 'You can add up to <em id="quote-size-limit">'+str(MAX_QUOTE_SIZE_SIGNED_IN)+'</em> Tweets per quote. If you need more visit the <a href="/a/upgrade">upgrade membership</a> page.'
     
     template_values = {
-      'msg_help1' : msg_help1
+      'msg_help1' : msg_help1,
+      'msg_login' : footerLoginLink(user)
     }
     path = os.path.join(os.path.dirname(__file__), 'templates/index.html')
     self.response.out.write(template.render(path, template_values))
@@ -291,12 +293,14 @@ class ShowQuote(webapp.RequestHandler):
       tweet['created_at'] = datetime.datetime.strptime(tweet['created_at'], "%a %b %d %H:%M:%S +0000 %Y")
       tweet['source'] = unescape(tweet['source'])
       authors[tweet['user']['screen_name']] = tweet['user']['name']
+    user = users.get_current_user()
     template_values = {
       'just_created'  : just_created,
       'app_url'       : app_url,
       'page_url'      : page_url,
       'authors'       : authors.values(),
-      'tweets'        : tweets
+      'tweets'        : tweets,
+      'msg_login'     : footerLoginLink(user, page_url)
     }
     path = os.path.join(os.path.dirname(__file__), 'templates/show.html')
     self.response.out.write(template.render(path, template_values))
@@ -319,8 +323,15 @@ class LoadSitemap(webapp.RequestHandler):
 
 class SignIn(webapp.RequestHandler):
   def get(self):
-    user = users.get_current_user()
-    self.redirect(users.create_login_url('/'))
+    target_url = cgi.escape(self.request.get('redirect'))
+    target_url = '/' if target_url is None else target_url
+    self.redirect(users.create_login_url(target_url))
+
+class SignOut(webapp.RequestHandler):
+  def get(self):
+    target_url = cgi.escape(self.request.get('redirect'))
+    target_url = '/' if target_url is None else target_url
+    self.redirect(users.create_logout_url(target_url))
 
 class UpgradeMembership(webapp.RequestHandler):
   def get(self):
@@ -428,6 +439,12 @@ def loadTweetOrCreate(tweet_id, request_handler):
   else:
     # json is on the cache, good
     return tweet_json
+
+def footerLoginLink(user, target_url='/'):
+  if not user:
+    return '<a href="/a/login'+('?redirect='+target_url if target_url != '/' else '')+'">Login</a>'
+  else:
+    return '<a href="/a/logout'+('?redirect='+target_url if target_url != '/' else '')+'" title="You are logged as '+user.nickname()+'.">Logout</a>'
 
 def randomHash(size):
   c = "abcdefghijklmnopqrstuvxywz0123456789"
