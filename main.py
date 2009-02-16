@@ -156,6 +156,7 @@ def main():
     ('/a/upgrade'         , UpgradeMembership),
     ('/a/loadtweet'       , LoadTweet),
     ('/a/create'          , CreateQuote),
+    ('/sitemap.xml'       , LoadSitemap),
     ('/(.[a-z0-9]+)(.*)'  , ShowQuote)
   ], debug=True)
   wsgiref.handlers.CGIHandler().run(application)
@@ -298,6 +299,21 @@ class ShowQuote(webapp.RequestHandler):
       'tweets'        : tweets
     }
     path = os.path.join(os.path.dirname(__file__), 'templates/show.html')
+    self.response.out.write(template.render(path, template_values))
+    return True
+
+class LoadSitemap(webapp.RequestHandler):
+  def get(self):
+    app_url       = 'http://'+os.environ['HTTP_HOST']
+    dialogues     = Dialogue.gql("ORDER BY created_date DESC")
+    # @TODO rewrite the sitemaps files to be scalable later (more than 1000 quote pages)
+    quotes        = dialogues.fetch(1000)
+    template_values = {
+      'quotes'  : quotes,
+      'app_url' : app_url
+    }
+    path = os.path.join(os.path.dirname(__file__), 'templates/sitemap.xml')
+    self.response.headers["Content-Type"] = "text/xml"
     self.response.out.write(template.render(path, template_values))
     return True
 
