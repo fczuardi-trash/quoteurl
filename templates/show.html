@@ -38,31 +38,34 @@
                 <div id="share">
                     <label><a href="{{page_url}}">URL</a>: <input type="text" class="text-entry" value="{{page_url}}" id="quoteURL-field" onclick="return selectField(this);" readonly="readonly" /></label>
                     <label for="quoteURL-embed-field">Embed:</label>
-                        <textarea class="text-entry" id="quoteURL-embed-field" rows="1" cols="20" onclick="return selectField(this);" readonly="readonly" ><!-- QuoteURL styled embed start -->
-&lt;blockquote class="quoteurl-block" style="margin:0;padding:0;"&gt;
-&lt;ol class="quoteurl-quote" style="background-color:#fff;color:#000;padding:.4em;border:1px solid #888;-moz-border-radius: .5em;border-radius: .5em;width:90%;max-width:700px;margin:auto;"&gt;{% for tweet in tweets %}
-  &lt;li class="hentry status u-{{tweet.user.screen_name}}" style="clear:both;list-style:none;padding-top:.7em;padding-bottom:.7em;border-top:1px dashed #ccc;position:relative;background-color:#fff;"&gt;
-    &lt;div class="thumb vcard author" style="float:left;margin-right:1em;margin-left:.5em;"&gt;
-        &lt;a class="url" href="http://twitter.com/{{tweet.user.screen_name}}"&gt;&lt;img width="48" height="48" style="border:none;" src="{{tweet.user.profile_image_url}}" class="photo fn" alt="{{tweet.user.name}}"/&gt;&lt;/a&gt;
-    &lt;/div&gt;
-    &lt;div class="status-body" style="margin-right:30px;padding-right:1em;"&gt;
-      &lt;a class="author" style="font-weight:bold;" title="{{tweet.user.name}}" href="http://twitter.com/{{tweet.user.screen_name}}"&gt;{{tweet.user.screen_name}}&lt;/a&gt;
-      &lt;span class="entry-content" style="font-style:normal"&gt;
-        {{tweet.text|escape|urlize|twitter_at_linkify|escape}}
-      &lt;/span&gt;
-      &lt;span class="meta entry-meta" style="color:#888;font-family:georgia;font-size:0.8em;font-style:italic;"&gt;
-        &lt;a rel="bookmark" class="entry-date" style="color:#888;text-decoration:none;" href="http://twitter.com/{{tweet.user.screen_name}}/status/{{tweet.id}}" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';"&gt;
-          &lt;span title="{{tweet.created_at}}" class="published"&gt;{{tweet.created_at|date:"d M Y - H:i"}}&lt;/span&gt;
-        &lt;/a&gt; 
-        &lt;span&gt;from {{tweet.source|escape}}&lt;/span&gt;
-      &lt;/span&gt;
-    &lt;/div&gt;
-    &lt;div class="actions" style="position:relative;clear:both;"&gt;&lt;/div&gt;
-  &lt;/li&gt;{% endfor %}
-&lt;/ol&gt;
-&lt;/blockquote&gt;&lt;small class="quoteurl-cite" style="float:right;"&gt; -- &lt;a href="{{page_url}}"&gt;this quote&lt;/a&gt; was brought to you by &lt;a href="http://www.quoteurl.com"&gt;quoteurl&lt;/a&gt;&lt;/small&gt;
-&lt;br class="quoteurl-end" style="clear:both;" /&gt;
-<!-- QuoteURL embed end --></textarea>
+                        <textarea class="text-entry" 
+                        id="quoteURL-embed-field" rows="1" cols="20" 
+                        onclick="return selectField(this);" readonly="readonly" 
+                        >{% filter escape %}{% spaceless %}
+<!-- QuoteURL styled embed start -->
+<blockquote class="quoteurl-block" style="margin:0;padding:0;">
+<ol class="quoteurl-quote" style="background-color:#fff;color:#000;padding:.4em;border:1px solid #888;-moz-border-radius: .5em;border-radius: .5em;width:90%;max-width:700px;margin:auto;">{% for tweet in tweets %}
+  <li class="hentry status u-{{tweet.user.screen_name}}" style="clear:both;list-style:none;padding-top:.7em;padding-bottom:.7em;border-top:1px dashed #ccc;position:relative;background-color:#fff;">
+    <div class="thumb vcard author" style="float:left;margin-right:1em;margin-left:.5em;">
+        <a class="url" href="http://twitter.com/{{tweet.user.screen_name}}"><img width="48" height="48" style="border:none;" src="{{tweet.user.profile_image_url}}" class="photo fn" alt="{{tweet.user.name}}"/></a>
+    </div>
+    <div class="status-body" style="margin-right:30px;padding-right:1em;">
+      <a class="author" style="font-weight:bold;" title="{{tweet.user.name}}" href="http://twitter.com/{{tweet.user.screen_name}}">{{tweet.user.screen_name}}</a>
+      <span class="entry-content" style="font-style:normal">{{tweet.text|escape|urlize|twitter_at_linkify|linebreaksbr}}</span>
+      <span class="meta entry-meta" style="color:#888;font-family:georgia;font-size:0.8em;font-style:italic;">
+        <a rel="bookmark" class="entry-date" style="color:#888;text-decoration:none;" href="http://twitter.com/{{tweet.user.screen_name}}/status/{{tweet.id}}" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">
+          <span title="{{tweet.created_at}}" class="published">{{tweet.created_at|date:"d M Y - H:i"}}</span>
+        </a> 
+        <span>from {{tweet.source}}</span>
+      </span>
+    </div>
+    <div class="actions" style="position:relative;clear:both;"></div>
+  </li>{% endfor %}
+</ol>
+</blockquote><small class="quoteurl-cite" style="float:right;"> -- <a href="{{page_url}}">this quote</a> was brought to you by <a href="http://www.quoteurl.com">quoteurl</a></small>
+<br class="quoteurl-end" style="clear:both;" />
+<!-- QuoteURL embed end -->
+{% endspaceless %}{% endfilter%}</textarea>
                     <label id="include-style-label" title="Include inline styles in the HTML, uncheck if you plan to have a custom CSS">
                         <input type="checkbox" checked="checked" id="include-style-checkbox" onclick="return toggleEmbedStyle(this);"/>
                         with style
