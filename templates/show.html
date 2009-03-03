@@ -29,6 +29,7 @@
                         <span class="meta entry-meta">
                             <a rel="bookmark" class="entry-date" href="http://twitter.com/{{tweet.user.screen_name}}/status/{{tweet.id}}">
                             <span title="{{tweet.created_at}}" class="published">{{tweet.created_at|timesince}} ago</span></a> <span>from {{tweet.source}}</span>
+                            {% if tweet.in_reply_to_status_id %}<a href="http://twitter.com/{{tweet.in_reply_to_screen_name}}/status/{{tweet.in_reply_to_status_id}}">in reply to {{tweet.in_reply_to_screen_name}}</a>{% endif %}
                         </span>
                     </div>
                     <div class="actions"></div>
@@ -57,6 +58,7 @@
           <span title="{{tweet.created_at}}" class="published">{{tweet.created_at|date:"d M Y"}}</span>
         </a> 
         <span>from {{tweet.source}}</span>
+        {% if tweet.in_reply_to_status_id %}<a href="http://twitter.com/{{tweet.in_reply_to_screen_name}}/status/{{tweet.in_reply_to_status_id}}">in reply to {{tweet.in_reply_to_screen_name}}</a>{% endif %}
       </span>
     </div>
     <div class="actions" style="position:relative;clear:both;"></div>

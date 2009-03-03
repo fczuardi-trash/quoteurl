@@ -70,6 +70,8 @@ function loadTweet(){
 
 /** Callback function when the request completes, regardless of if it succeded or failed **/
 function requestComplete(){
+    console.log('requestComplete')
+    console.log(response)
     //re-enable add button and clean the text input
     $('add-tweet-button').set('value','+')
     $('add-tweet-button').erase('disabled')
@@ -79,7 +81,6 @@ function requestComplete(){
 
 /** Callback function to run if the tweet content is returned **/
 function onTweetLoaded(response){
-    console.log(response)
     //add the loaded tweet to the quote
     tweetlist[response.id] = response;
     addTweetToPreview(response)
@@ -89,7 +90,9 @@ function onTweetLoaded(response){
 function addTweetToPreview(tweet){
     var tweet_time = Date.parse(tweet.created_at)
     var isotime = ISOTime(tweet_time)
-    var humantime= elapsedTime(tweet_time)
+    var humantime = elapsedTime(tweet_time)
+    var in_reply_to = (tweet.in_reply_to_status_id != null && tweet.in_reply_to_screen_name != null) ? 
+    ' <a href="http://twitter.com/'+tweet.in_reply_to_screen_name+'/status/'+tweet.in_reply_to_status_id+'">in reply to '+tweet.in_reply_to_screen_name+'</a>' : ''
     var newTweet = new Element('li',{
         'id' : 'status_'+tweet.id,
         'class' : 'hentry status u-'+tweet.user.screen_name,
@@ -108,7 +111,7 @@ function addTweetToPreview(tweet){
     html += '        </span>'
     html += '        <span class="meta entry-meta">'
     html += '            <a rel="bookmark" class="entry-date" href="http://twitter.com/'+tweet.user.screen_name+'/status/'+tweet.id+'">'
-    html += '            <span title="'+isotime+'" class="published">'+humantime+'</span></a> <span>from '+tweet.source+'</span>'
+    html += '            <span title="'+isotime+'" class="published">'+humantime+'</span></a> <span>from '+tweet.source+'</span>'+in_reply_to
     html += '        </span>'
     html += '    </div>'
     html += '    <div class="actions">'
@@ -317,6 +320,7 @@ function dupeTweet(){
 
 /** Callback function to run if there was an error loading the tweet **/
 function onTweetLoadFailure(r){
+    console.log('TweetLoadFailure')
     console.log(r)
     warnUser('FAIL: '+r.status+' - '+JSON.decode(r.responseText).error,'FAIL')
 }
