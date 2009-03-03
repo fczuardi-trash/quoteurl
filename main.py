@@ -158,6 +158,7 @@ def main():
     ('/a/loadtweet'       , LoadTweet),
     ('/a/create'          , CreateQuote),
     ('/sitemap.xml'       , LoadSitemap),
+    ('/quote.asp'         , EmptyPage),
     ('/(.[a-z0-9]+)(.*)'  , ShowQuote)
   ], debug=True)
   wsgiref.handlers.CGIHandler().run(application)
@@ -339,6 +340,10 @@ class UpgradeMembership(webapp.RequestHandler):
     path = os.path.join(os.path.dirname(__file__), 'templates/upgrade.html')
     self.response.out.write(template.render(path, template_values))
 
+class EmptyPage(webapp.RequestHandler):
+  def get(self):
+    self.response.set_status(404)
+    self.response.out.write('')
 
 #--- HELPERS ---
 def twitterUserAttributesAreDifferent(user, dictionary):
