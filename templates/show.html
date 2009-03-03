@@ -54,7 +54,7 @@
       <span class="entry-content" style="font-style:normal">{{tweet.text|urlize|twitter_at_linkify|linebreaksbr}}</span>
       <span class="meta entry-meta" style="color:#888;font-family:georgia;font-size:0.8em;font-style:italic;">
         <a rel="bookmark" class="entry-date" style="color:#888;text-decoration:none;" href="http://twitter.com/{{tweet.user.screen_name}}/status/{{tweet.id}}" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">
-          <span title="{{tweet.created_at}}" class="published">{{tweet.created_at|date:"d M Y - H:i"}}</span>
+          <span title="{{tweet.created_at}}" class="published">{{tweet.created_at|date:"d M Y"}}</span>
         </a> 
         <span>from {{tweet.source}}</span>
       </span>
