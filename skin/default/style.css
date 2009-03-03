@@ -274,11 +274,12 @@ h3{
 }
 .text-entry{
     width:20em;
-    font-family:monospace, courier;
-    height:1.2em;
-    font-size:.8em;
+    font-family:Arial,sans-serif;
+    height:1.35em;
+    font-size:.75em;
     white-space:nowrap;
-    border:1px solid #999;
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
     vertical-align:middle;
 }
 #quoteURL-field{
