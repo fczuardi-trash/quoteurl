@@ -69,7 +69,7 @@ function loadTweet(){
 }
 
 /** Callback function when the request completes, regardless of if it succeded or failed **/
-function requestComplete(){
+function requestComplete(response){
     console.log('requestComplete')
     console.log(response)
     //re-enable add button and clean the text input
