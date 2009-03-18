@@ -39,6 +39,7 @@ import wsgiref.handlers
 import urllib
 import sets
 import time
+import config
 
 from google.appengine.api import users
 from google.appengine.ext import db
@@ -186,6 +187,7 @@ class LoadTweet(webapp.RequestHandler):
     fmt         = cgi.escape(self.request.get('fmt'))
     tweet_json  = loadTweetOrCreate(tweet_id, self)
     if tweet_json is not None:
+      self.response.headers["Content-Type"] = "text/plain"
       self.response.out.write(tweet_json)
       return True
     else:
@@ -405,10 +407,13 @@ def loadTweetOrCreate(tweet_id, request_handler):
       # json also not in datastore load from twitter and put it on the datastore
       result = urlfetch.fetch(url)
       to_put = []
+      # Twitter API requests quota for Appengine cloud has been exceeded already, use a backup server to proxy the request (setup the url on config.py)
+      if result.status_code == 400 and config.backup_load_tweet_json_url is not None:
+        result = urlfetch.fetch(config.backup_load_tweet_json_url+'?id='+tweet_id)
       if result.status_code == 200:
         # success, load the json content into a python object
         loaded_tweet = simplejson.loads(result.content)
-        if loaded_tweet['id']:
+        if loaded_tweet.has_key('id'):
           tweet = Tweet.get_or_insert(key_name='Tweet:'+str(loaded_tweet['id']))
           updateTweetAttributes(tweet, loaded_tweet)
           # loaded tweets also contains user info, so write the info on the datastore to keep it updated
@@ -431,7 +436,7 @@ def loadTweetOrCreate(tweet_id, request_handler):
           return result.content
         else:
           # error! the loaded url doesnt contains the expected json!
-          request_handler.response.out.write('error! the loaded url doesnt contains the expected json!')
+          request_handler.response.out.write(result.content)
           return None
       else:
         # request failed with an error

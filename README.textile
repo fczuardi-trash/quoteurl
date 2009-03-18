@@ -1,0 +1,8 @@
+h1. QuoteURL - share Twitter conversations
+
+h2. Installation notes
+
+Before running the QuoteURL code in your AppEngine instance, you have to:
+
+# edit the first line of app.yaml to have your app name instead
+# rename config.example.py to config.py (and optionally setup a proxy url as described in the config.py)
