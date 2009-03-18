@@ -81,6 +81,7 @@ function requestComplete(response){
 
 /** Callback function to run if the tweet content is returned **/
 function onTweetLoaded(response){
+    console.log('onTweetLoaded')
     //add the loaded tweet to the quote
     tweetlist[response.id] = response;
     addTweetToPreview(response)
