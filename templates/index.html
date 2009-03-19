@@ -32,11 +32,10 @@
                         </div>
                     </form>
                     <div class="split-help">
-                        <p><strike>Or you can use one of the <b>Split Screen Modes</b>: 
-                        <b>Twitter Home</b> and 
-                        <b>Twitter Search</b> 
-                        to drag <b>permalinks</b> to the text-field.</strike></p>
-                        <p>Split Screen Mode is <a href="http://www.quoteurl.com/veazm">disabled</a>. Drag'n drop will return soon in a different form, thanks for the patience.</p>
+                        <p>Or you can split the screen and pop-up 
+                            <a href="http://twitter.com/home" target="_blank" onclick="return launchPopupMode(this);" _windowname="quoteurl_popup" >Twitter Home</a> or 
+                            <a href="http://search.twitter.com" target="_blank" onclick="return launchPopupMode(this);" _windowname="quoteurl_popup">Twitter Search</a> 
+                            in a separated window to drag <b>permalinks</b> into the text-field.</p>
                         <div id="permalink-help"></div>
                         <div class="section-end"></div>
                     </div>
@@ -72,9 +71,9 @@
             </div>
         </div> <!-- end main -->
         <div id="twitter-container">
-            <a class="del" href="#" id="close-split" onclick="return splitScreenToggle('close');">x</a>
-            <p id="iframe-loading">Loading…</p>
-            <iframe id="twitter-iframe"></iframe>
+            <a class="del" href="#" id="close-split" onclick="return closePopupMode();">x</a>
+            <p id="click-to-raise">Click to raise Twitter pop-up.</p>
+            <div id="twitter-raise" onclick="return popup_window.focus();"></div>
         </div>
         <div class="footer">
             <p>
