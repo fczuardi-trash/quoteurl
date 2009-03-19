@@ -205,6 +205,7 @@ function removeTweet(del_button){
 
 /** Validate and sends necessary data to create the new quote page **/
 function createQuote(){
+    closePopupMode()
     return true
 }
 
