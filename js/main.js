@@ -262,7 +262,7 @@ function toggleEmbedStyle(check){
     var embed_field = $('quoteURL-embed-field')
     if (embed_styles == null){
         //first-time, store the style info
-        embed_styles = embed_field.value.match(/<.*style="[^"]*"/g)
+        embed_styles = embed_field.value.match(/<.*?style="[^"]*"/g)
     }
     var lastindex = 0;
     var embed_string = embed_field.value
