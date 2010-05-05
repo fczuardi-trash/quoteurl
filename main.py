@@ -57,8 +57,8 @@ webapp.template.register_template_library('customfilters')
 
 
 #--- CONSTANTS ---
-MAX_QUOTE_SIZE_SIGNED_OUT = 4
-MAX_QUOTE_SIZE_SIGNED_IN  = 10
+MAX_QUOTE_SIZE_SIGNED_OUT = 10
+MAX_QUOTE_SIZE_SIGNED_IN  = 25
 LOADED_TWEET_CACHE_TIME   = 60*60 # one hour
 URL_HASH_SIZE             = 5
 
