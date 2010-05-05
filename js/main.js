@@ -171,7 +171,7 @@ function updateForm(){
 
 function updateSaveButton(){
     var quote_tweets = $$('li')
-    if (quote_tweets.length < 3){
+    if (quote_tweets.length < 2){
         $('save-button').set('disabled', true)
         $('save-button').addClass('disabled')
     } else {
