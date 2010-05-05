@@ -44,6 +44,7 @@ import config
 from google.appengine.api import users
 from google.appengine.ext import db
 from google.appengine.api import urlfetch
+from google.appengine.api.urlfetch import DownloadError 
 from google.appengine.api import memcache
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
@@ -396,7 +397,7 @@ def updateTweetAttributes(tweet, dictionary):
 
 # returns JSON
 def loadTweetOrCreate(tweet_id, request_handler):
-  url         = 'http://twitter.com/statuses/show/'+ tweet_id +'.json'
+  url         = 'http://api.twitter.com/1/statuses/show/'+ tweet_id +'.json'
   cache_key   = 'tweet_'+ tweet_id +'.json'
   # look in the cache
   tweet_json = memcache.get(cache_key)
@@ -408,8 +409,17 @@ def loadTweetOrCreate(tweet_id, request_handler):
       result = urlfetch.fetch(url)
       to_put = []
       # Twitter API requests quota for Appengine cloud has been exceeded already, use a backup server to proxy the request (setup the url on config.py)
-      if result.status_code == 400 and config.backup_load_tweet_json_url is not None:
-        result = urlfetch.fetch(config.backup_load_tweet_json_url+'?id='+tweet_id)
+      if (result.status_code == 400 or result.status_code == 500) and config.backup_load_tweet_json_url is not None:
+        try:
+          result = urlfetch.fetch(config.backup_load_tweet_json_url+'?id='+tweet_id)
+        except DownloadError:
+          try:
+            result = urlfetch.fetch(config.backup_load_tweet_json_url+'?id='+tweet_id)
+          except DownloadError:
+            try:
+              result = urlfetch.fetch(config.backup_load_tweet_json_url+'?id='+tweet_id)
+            except DownloadError:
+              pass
       if result.status_code == 200:
         # success, load the json content into a python object
         loaded_tweet = simplejson.loads(result.content)
